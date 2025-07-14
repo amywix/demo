@@ -25,6 +25,11 @@
     <div class="container" id="timesheetContainer">
         <h1 class="text-center mb-4">Support Worker Timesheet</h1>
         <form id="timesheetForm">
+            <div class="mb-3">
+                <label for="workerName" class="form-label">Worker Name</label>
+                <input type="text" id="workerName" class="form-control" placeholder="Enter your name">
+            </div>
+
             <div class="accordion" id="dayAccordion"></div>
         </form>
         <div class="table-responsive mt-4">
@@ -42,7 +47,9 @@
             <h2 class="text-center">Summary</h2>
             <p>Total Hours: <span id="total-hours">0</span></p>
             <p>Weekday Hours: <span id="weekday-hours">0</span></p>
-            <p>Weekend Hours: <span id="weekend-hours">0</span></p>
+            <p>Saturday Hours: <span id="saturday-hours">0</span></p>
+            <p>Sunday Hours: <span id="sunday-hours">0</span></p>
+
             <p>Sleepovers: <span id="sleepovers">0</span></p>
             <p>Broken Shift 1: <span id="broken-shift-1">0</span></p>
             <p>Broken Shift 2: <span id="broken-shift-2">0</span></p>
@@ -87,28 +94,27 @@
             let totalHours = 0;
             let weekdayHours = 0;
             let weekendHours = 0;
+            let saturdayHours = 0;
+            let sundayHours = 0;
             let sleepoverCount = 0;
             let brokenShift1 = 0;
             let brokenShift2 = 0;
 
-            let days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+            const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
             days.forEach(day => {
                 let shiftTimes = [];
-                let dailyTotalHours = 0;
 
                 for (let i = 1; i <= 4; i++) {
                     let start = document.getElementById(`${day}StartTime${i}`)?.value;
                     let end = document.getElementById(`${day}EndTime${i}`)?.value;
                     let shiftType = document.getElementById(`${day}ShiftType${i}`)?.value || "standard";
-
                     let dateField = document.getElementById(`${day}Date`);
                     let date = dateField ? new Date(dateField.value) : null;
 
                     if (start && end && date) {
                         const hours = calculateHours(start, end);
 
-                        // Handle leave separately
                         if (shiftType === "annual leave") {
                             annualLeaveHours += hours;
                             continue;
@@ -121,38 +127,53 @@
                         shiftTimes.push({ start, end, hours });
 
                         if (shiftType === "sleepover") sleepoverCount++;
-                        if (date.getDay() === 6 || date.getDay() === 0) {
-                            weekendHours += hours;
+
+                        const dayOfWeek = date.getDay(); // 0 = Sun, 6 = Sat
+
+                        if (dayOfWeek === 6) {
+                            saturdayHours += hours;
+                          
+                        } else if (dayOfWeek === 0) {
+                            sundayHours += hours;
+                        
                         } else {
                             weekdayHours += hours;
                         }
                     }
                 }
 
+               
+
+                      
+                       
+
                 // Sort shifts in ascending order by start time
                 shiftTimes.sort((a, b) => new Date(`1970-01-01T${a.start}:00`) - new Date(`1970-01-01T${b.start}:00`));
 
-                // **Calculate Broken Shift 1 and 2 Allowance**
+                // Check for broken shifts
+                shiftTimes.sort((a, b) => new Date(`1970-01-01T${a.start}`) - new Date(`1970-01-01T${b.start}`));
                 if (shiftTimes.length === 2) {
-                    let breakTime = (new Date(`1970-01-01T${shiftTimes[1].start}:00`) - new Date(`1970-01-01T${shiftTimes[0].end}:00`)) / (1000 * 60 * 60);
-                    if (breakTime > 0) brokenShift1 += 1; // Count BS1 only if there's a break
+                    const breakTime = (new Date(`1970-01-01T${shiftTimes[1].start}`) - new Date(`1970-01-01T${shiftTimes[0].end}`)) / (1000 * 60 * 60);
+                    if (breakTime > 0) brokenShift1 += 1;
                 }
 
                 if (shiftTimes.length === 3) {
-                    let firstBreak = (new Date(`1970-01-01T${shiftTimes[1].start}:00`) - new Date(`1970-01-01T${shiftTimes[0].end}:00`)) / (1000 * 60 * 60);
-                    let secondBreak = (new Date(`1970-01-01T${shiftTimes[2].start}:00`) - new Date(`1970-01-01T${shiftTimes[1].end}:00`)) / (1000 * 60 * 60);
-                    if (firstBreak > 0 && secondBreak > 0) brokenShift2 += 1; // Count BS2 only if two breaks exist
+                    const firstBreak = (new Date(`1970-01-01T${shiftTimes[1].start}`) - new Date(`1970-01-01T${shiftTimes[0].end}`)) / (1000 * 60 * 60);
+                    const secondBreak = (new Date(`1970-01-01T${shiftTimes[2].start}`) - new Date(`1970-01-01T${shiftTimes[1].end}`)) / (1000 * 60 * 60);
+                    if (firstBreak > 0 && secondBreak > 0) brokenShift2 += 1;
                 }
             });
 
-            // Update UI with calculated values
+            // Update UI
             document.getElementById("total-hours").innerText = totalHours.toFixed(2);
             document.getElementById("weekday-hours").innerText = weekdayHours.toFixed(2);
-            document.getElementById("weekend-hours").innerText = weekendHours.toFixed(2);
+                        document.getElementById("saturday-hours").innerText = saturdayHours.toFixed(2);
+            document.getElementById("sunday-hours").innerText = sundayHours.toFixed(2);
             document.getElementById("sleepovers").innerText = sleepoverCount;
             document.getElementById("broken-shift-1").innerText = brokenShift1;
             document.getElementById("broken-shift-2").innerText = brokenShift2;
         }
+
 
         function saveShift(day) {
             console.log(`Saving shifts for ${day}`);
@@ -200,30 +221,58 @@
             }
 
             updateTotals();
+          
+
         }
 
 
         // Function to download the shift list as a PDF
         function downloadPDF() {
-            console.log("Attempting to download PDF");
+            updateTotals(); // Ensure all totals are updated before printing
 
-            let shiftList = document.getElementById("timesheetContainer");
+            console.log("Generating PDF...");
 
-            if (!shiftList) {
-                console.error("Shift list container not found");
-                return;
-            }
+            const shiftTable = document.getElementById("shiftEntries");
+            const summaryCard = document.querySelector(".summary-card");
+            const workerName = document.getElementById("workerName").value || "(No name provided)";
 
-            let options = {
+            // Clone elements
+            const clonedTable = shiftTable.cloneNode(true);
+            const clonedSummary = summaryCard.cloneNode(true);
+
+            // Create a clean container
+            const container = document.createElement("div");
+            container.style.padding = "1rem";
+            container.style.fontFamily = "Arial, sans-serif";
+
+            // Add heading and name
+            const heading = document.createElement("h2");
+            heading.innerText = "Support Worker Timesheet";
+            heading.style.textAlign = "center";
+            heading.style.marginBottom = "1rem";
+
+            const nameBlock = document.createElement("p");
+            nameBlock.innerHTML = `<strong>Worker Name:</strong> ${workerName}`;
+            nameBlock.style.marginBottom = "1rem";
+
+            container.appendChild(heading);
+            container.appendChild(nameBlock);
+            container.appendChild(clonedTable);
+            container.appendChild(clonedSummary);
+
+            // PDF Options
+            const options = {
                 margin: 0.5,
                 filename: 'Support_Worker_Timesheet.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(options).from(shiftList).save();
+            html2pdf().set(options).from(container).save();
         }
+
+
 
 
         const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];

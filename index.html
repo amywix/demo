@@ -289,7 +289,7 @@ ${dayTitle}
 </h2>
 <div id="collapse${day}" class="accordion-collapse collapse" aria-labelledby="heading${day}" data-bs-parent="#dayAccordion">
 <div class="accordion-body">
-<input type="date" id="${day}Date" class="form-control mb-2" required />
+<input type="date" placeholder="Select Date" id="${day}Date" class="form-control mb-2" required />
 <div id="${day}Shifts"></div>
 <button type="button" class="btn btn-secondary w-100 mb-2" onclick="addShift('${day}')">➕ Add Shift</button>
 <button type="button" class="btn btn-success w-100" data-day="${day}" onclick="saveShift('${day}')">💾 Save Shifts</button>
@@ -306,8 +306,8 @@ ${dayTitle}
             const shiftRow = document.createElement('div');
             shiftRow.className = 'row g-2 mb-2';
             shiftRow.innerHTML = `
-<div class="col-12 col-md-4"><input type="time" id="${day}StartTime${shiftCount}" class="form-control"></div>
-<div class="col-12 col-md-4"><input type="time" id="${day}EndTime${shiftCount}" class="form-control"></div>
+<div class="col-12 col-md-4"><input type="time" placeholder="Enter Start Time" id="${day}StartTime${shiftCount}" class="form-control"></div>
+<div class="col-12 col-md-4"><input type="time" placeholder="Enter finish time"  id="${day}EndTime${shiftCount}" class="form-control"></div>
 <div class="col-12 col-md-4"><select id="${day}ShiftType${shiftCount}" class="form-select">
 <option value="standard">Standard</option>
 <option value="sleepover">Sleepover</option>

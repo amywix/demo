@@ -11,6 +11,16 @@
             background: #f8f9fa;
         }
 
+        button, .form-control, .form-select {
+            font-size: 1rem;
+            padding: 0.75rem;
+        }
+
+        .accordion-button {
+            font-size: 1.1rem;
+            padding: 1rem;
+        }
+
         .container {
             max-width: 600px;
             margin: auto;
@@ -134,20 +144,20 @@
 
                         if (dayOfWeek === 6) {
                             saturdayHours += hours;
-                          
+
                         } else if (dayOfWeek === 0) {
                             sundayHours += hours;
-                        
+
                         } else {
                             weekdayHours += hours;
                         }
                     }
                 }
 
-               
 
-                      
-                       
+
+
+
 
                 // Sort shifts in ascending order by start time
                 shiftTimes.sort((a, b) => new Date(`1970-01-01T${a.start}:00`) - new Date(`1970-01-01T${b.start}:00`));
@@ -169,7 +179,7 @@
             // Update UI
             document.getElementById("total-hours").innerText = totalHours.toFixed(2);
             document.getElementById("weekday-hours").innerText = weekdayHours.toFixed(2);
-                        document.getElementById("saturday-hours").innerText = saturdayHours.toFixed(2);
+            document.getElementById("saturday-hours").innerText = saturdayHours.toFixed(2);
             document.getElementById("sunday-hours").innerText = sundayHours.toFixed(2);
             document.getElementById("sleepovers").innerText = sleepoverCount;
             document.getElementById("broken-shift-1").innerText = brokenShift1;
@@ -206,12 +216,12 @@
                     const row = document.createElement("tr");
                     row.setAttribute("data-day", day);
                     row.innerHTML = `
-                <td>${date}</td>
-                <td>${shift.start}</td>
-                <td>${shift.end}</td>
-                <td>${calculateHours(shift.start, shift.end).toFixed(2)}</td>
-                <td>${shift.type}</td>
-            `;
+                    <td>${date}</td>
+                    <td>${shift.start}</td>
+                    <td>${shift.end}</td>
+                    <td>${calculateHours(shift.start, shift.end).toFixed(2)}</td>
+                    <td>${shift.type}</td>
+                `;
                     shiftTableBody.appendChild(row);
                     anyAdded = true;
                     console.log(`✅ Shift added for ${day}: ${shift.start}–${shift.end} (${shift.type})`);
@@ -223,7 +233,7 @@
             }
 
             updateTotals();
-          
+
 
         }
 
@@ -276,6 +286,10 @@
 
 
 
+        const clients = [
+            "WAYNE", "RICHARD", "SANDRA", "JAYDEN", "LANI",
+            "JESS", "LORNA", "AMY", "CHRIS", "BRENDAN", "KIMBERLEY COURT"
+        ];
 
         const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         const accordion = document.getElementById('dayAccordion');
@@ -304,36 +318,43 @@ ${dayTitle}
 
         function addShift(day) {
             const container = document.getElementById(`${day}Shifts`);
+
             const shiftCount = container.childElementCount + 1;
             if (shiftCount > 4) return alert('Maximum 4 shifts per day');
             const shiftRow = document.createElement('div');
             shiftRow.className = 'row g-2 mb-2';
-            shiftRow.innerHTML = `<div class="col-12 col-md-4">
-  <label for="${day}StartTime${shiftCount}" class="form-label">Start Time</label>
-  <input type="time" id="${day}StartTime${shiftCount}" class="form-control">
+            shiftRow.innerHTML = `
+<div class="col-6 col-md-3">
+    <label for="${day}StartTime${shiftCount}" class="form-label">Start</label>
+    <input type="time" id="${day}StartTime${shiftCount}" class="form-control">
 </div>
-
-<div class="col-12 col-md-4">
-  <label for="${day}EndTime${shiftCount}" class="form-label">Finish Time</label>
-  <input type="time" id="${day}EndTime${shiftCount}" class="form-control">
+<div class="col-6 col-md-3">
+    <label for="${day}EndTime${shiftCount}" class="form-label">End</label>
+    <input type="time" id="${day}EndTime${shiftCount}" class="form-control">
 </div>
-
-
-                                  <div class="col-12 col-md-4">
-  <label for="${day}ShiftType${shiftCount}" class="form-label">Shift Type</label>
-  <select id="${day}ShiftType${shiftCount}" class="form-select">
-    <option value="standard">Standard</option>
-    <option value="sleepover">Sleepover</option>
-    <option value="annual leave">Annual Leave</option>
-    <option value="personal leave">Personal Leave</option>
-  </select>
+<div class="col-6 col-md-3">
+    <label for="${day}ShiftType${shiftCount}" class="form-label">Type</label>
+    <select id="${day}ShiftType${shiftCount}" class="form-select">
+        <option value="standard">Standard</option>
+        <option value="sleepover">Sleepover</option>
+        <option value="annual leave">Annual Leave</option>
+        <option value="personal leave">Personal Leave</option>
+    </select>
+</div>
+<div class="col-6 col-md-3">
+    <label for="${day}Client${shiftCount}" class="form-label">Client</label>
+    <select id="${day}Client${shiftCount}" class="form-select">
+        ${clients.map(client => `
+        <option value="${client}">${client}</option>`).join('')}
+    </select>
 </div>
 `;
             container.appendChild(shiftRow);
         }
     </script>
 
- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
+

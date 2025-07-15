@@ -44,7 +44,8 @@
         </form>
         <div class="table-responsive mt-4">
             <table id="shiftEntries" class="table table-striped">
-                <thead><tr><th>Date</th><th>Start</th><th>End</th><th>Hours</th><th>Type</th></tr></thead>
+                <thead><tr><th>Date</th><th>Start</th><th>End</th><th>Hours</th><th>Type</th><th>Client</th></tr></thead>
+
                 <tbody></tbody>
             </table>
         </div>
@@ -67,14 +68,9 @@
     </div>
 
     <script>
-
         document.addEventListener("DOMContentLoaded", function () {
             console.log("DOM fully loaded and script running.");
-
-
-
-            // Attach event listener for the Download PDF button
-            let downloadBtn = document.getElementById("downloadPdfBtn");
+            const downloadBtn = document.getElementById("downloadPdfBtn");
             if (downloadBtn) {
                 downloadBtn.addEventListener("click", downloadPDF);
             } else {
@@ -82,101 +78,69 @@
             }
         });
 
-        // Function to calculate hours worked
+        const clients = [
+            "WAYNE", "RICHARD", "SANDRA", "JAYDEN", "LANI",
+            "JESS", "LORNA", "AMY", "CHRIS", "BRENDAN", "KIMBERLEY COURT"
+        ];
+
         function calculateHours(startTime, endTime) {
             if (!startTime || !endTime) return 0;
-
             let start = new Date(`1970-01-01T${startTime}:00`);
             let end = new Date(`1970-01-01T${endTime}:00`);
-
-            if (end < start) {
-                // Handles overnight shifts
-                end.setDate(end.getDate() + 1);
-            }
-
-            let diff = (end - start) / (1000 * 60 * 60); // Convert milliseconds to hours
-            return diff;
+            if (end < start) end.setDate(end.getDate() + 1); // Handle overnight
+            return (end - start) / (1000 * 60 * 60);
         }
 
-        // Function to update total shift calculations
         function updateTotals() {
-            let annualLeaveHours = 0;
-            let personalLeaveHours = 0;
-
-            let totalHours = 0;
-            let weekdayHours = 0;
-            let weekendHours = 0;
-            let saturdayHours = 0;
-            let sundayHours = 0;
-            let sleepoverCount = 0;
-            let brokenShift1 = 0;
-            let brokenShift2 = 0;
+            let totalHours = 0, weekdayHours = 0, saturdayHours = 0, sundayHours = 0;
+            let annualLeaveHours = 0, personalLeaveHours = 0;
+            let sleepoverCount = 0, brokenShift1 = 0, brokenShift2 = 0;
 
             const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
             days.forEach(day => {
                 let shiftTimes = [];
+                const dateField = document.getElementById(`${day}Date`);
+                const date = dateField ? new Date(dateField.value) : null;
 
                 for (let i = 1; i <= 4; i++) {
                     let start = document.getElementById(`${day}StartTime${i}`)?.value;
                     let end = document.getElementById(`${day}EndTime${i}`)?.value;
-                    let shiftType = document.getElementById(`${day}ShiftType${i}`)?.value || "standard";
-                    let dateField = document.getElementById(`${day}Date`);
-                    let date = dateField ? new Date(dateField.value) : null;
+                    let type = document.getElementById(`${day}ShiftType${i}`)?.value;
 
                     if (start && end && date) {
                         const hours = calculateHours(start, end);
-
-                        if (shiftType === "annual leave") {
+                        if (type === "annual leave") {
                             annualLeaveHours += hours;
                             continue;
-                        } else if (shiftType === "personal leave") {
+                        } else if (type === "personal leave") {
                             personalLeaveHours += hours;
                             continue;
                         }
 
                         totalHours += hours;
                         shiftTimes.push({ start, end, hours });
+                        if (type === "sleepover") sleepoverCount++;
 
-                        if (shiftType === "sleepover") sleepoverCount++;
-
-                        const dayOfWeek = date.getDay(); // 0 = Sun, 6 = Sat
-
-                        if (dayOfWeek === 6) {
-                            saturdayHours += hours;
-
-                        } else if (dayOfWeek === 0) {
-                            sundayHours += hours;
-
-                        } else {
-                            weekdayHours += hours;
-                        }
+                        const dayOfWeek = date.getDay();
+                        if (dayOfWeek === 6) saturdayHours += hours;
+                        else if (dayOfWeek === 0) sundayHours += hours;
+                        else weekdayHours += hours;
                     }
                 }
 
-
-
-
-
-
-                // Sort shifts in ascending order by start time
-                shiftTimes.sort((a, b) => new Date(`1970-01-01T${a.start}:00`) - new Date(`1970-01-01T${b.start}:00`));
-
-                // Check for broken shifts
                 shiftTimes.sort((a, b) => new Date(`1970-01-01T${a.start}`) - new Date(`1970-01-01T${b.start}`));
                 if (shiftTimes.length === 2) {
                     const breakTime = (new Date(`1970-01-01T${shiftTimes[1].start}`) - new Date(`1970-01-01T${shiftTimes[0].end}`)) / (1000 * 60 * 60);
-                    if (breakTime > 0) brokenShift1 += 1;
+                    if (breakTime > 0) brokenShift1++;
                 }
-
                 if (shiftTimes.length === 3) {
                     const firstBreak = (new Date(`1970-01-01T${shiftTimes[1].start}`) - new Date(`1970-01-01T${shiftTimes[0].end}`)) / (1000 * 60 * 60);
                     const secondBreak = (new Date(`1970-01-01T${shiftTimes[2].start}`) - new Date(`1970-01-01T${shiftTimes[1].end}`)) / (1000 * 60 * 60);
-                    if (firstBreak > 0 && secondBreak > 0) brokenShift2 += 1;
+                    if (firstBreak > 0 && secondBreak > 0) brokenShift2++;
                 }
             });
 
-            // Update UI
             document.getElementById("total-hours").innerText = totalHours.toFixed(2);
             document.getElementById("weekday-hours").innerText = weekdayHours.toFixed(2);
             document.getElementById("saturday-hours").innerText = saturdayHours.toFixed(2);
@@ -186,110 +150,77 @@
             document.getElementById("broken-shift-2").innerText = brokenShift2;
         }
 
-
         function saveShift(day) {
-            console.log(`Saving shifts for ${day}`);
-
             const date = document.getElementById(`${day}Date`).value;
             const shiftTableBody = document.querySelector("#shiftEntries tbody");
+            if (!shiftTableBody) return;
 
-            if (!shiftTableBody) {
-                console.error("❌ tbody not found");
-                return;
-            }
-
-            // Remove old rows
-            const rowsToRemove = Array.from(shiftTableBody.rows).filter(row => row.dataset.day === day);
-            rowsToRemove.forEach(row => shiftTableBody.removeChild(row));
-
-            const shifts = [
-                { start: document.getElementById(`${day}StartTime1`)?.value, end: document.getElementById(`${day}EndTime1`)?.value, type: document.getElementById(`${day}ShiftType1`)?.value },
-                { start: document.getElementById(`${day}StartTime2`)?.value, end: document.getElementById(`${day}EndTime2`)?.value, type: document.getElementById(`${day}ShiftType2`)?.value },
-                { start: document.getElementById(`${day}StartTime3`)?.value, end: document.getElementById(`${day}EndTime3`)?.value, type: document.getElementById(`${day}ShiftType3`)?.value },
-                { start: document.getElementById(`${day}StartTime4`)?.value, end: document.getElementById(`${day}EndTime4`)?.value, type: document.getElementById(`${day}ShiftType4`)?.value }
-            ];
+            // Remove old rows for this day
+            Array.from(shiftTableBody.rows).filter(row => row.dataset.day === day).forEach(row => row.remove());
 
             let anyAdded = false;
 
-            shifts.forEach(shift => {
-                if (shift.start && shift.end) {
+            for (let i = 1; i <= 4; i++) {
+                const start = document.getElementById(`${day}StartTime${i}`)?.value;
+                const end = document.getElementById(`${day}EndTime${i}`)?.value;
+                const type = document.getElementById(`${day}ShiftType${i}`)?.value;
+                const client = document.getElementById(`${day}Client${i}`)?.value;
+
+                if (start && end) {
                     const row = document.createElement("tr");
                     row.setAttribute("data-day", day);
                     row.innerHTML = `
-                    <td>${date}</td>
-                    <td>${shift.start}</td>
-                    <td>${shift.end}</td>
-                    <td>${calculateHours(shift.start, shift.end).toFixed(2)}</td>
-                    <td>${shift.type}</td>
-                `;
+                        <td>${date}</td>
+                        <td>${start}</td>
+                        <td>${end}</td>
+                        <td>${calculateHours(start, end).toFixed(2)}</td>
+                        <td>${type}</td>
+                        <td>${client}</td>
+                    `;
                     shiftTableBody.appendChild(row);
                     anyAdded = true;
-                    console.log(`✅ Shift added for ${day}: ${shift.start}–${shift.end} (${shift.type})`);
                 }
-            });
+            }
 
             if (!anyAdded) {
                 alert("⚠️ No valid shifts entered. Please add at least one shift with start and end times.");
             }
 
             updateTotals();
-
-
         }
 
-
-        // Function to download the shift list as a PDF
         function downloadPDF() {
-            updateTotals(); // Ensure all totals are updated before printing
-
-            console.log("Generating PDF...");
-
+            updateTotals();
             const shiftTable = document.getElementById("shiftEntries");
             const summaryCard = document.querySelector(".summary-card");
             const workerName = document.getElementById("workerName").value || "(No name provided)";
-
-            // Clone elements
             const clonedTable = shiftTable.cloneNode(true);
             const clonedSummary = summaryCard.cloneNode(true);
 
-            // Create a clean container
             const container = document.createElement("div");
             container.style.padding = "1rem";
             container.style.fontFamily = "Arial, sans-serif";
 
-            // Add heading and name
             const heading = document.createElement("h2");
             heading.innerText = "Support Worker Timesheet";
             heading.style.textAlign = "center";
-            heading.style.marginBottom = "1rem";
 
             const nameBlock = document.createElement("p");
             nameBlock.innerHTML = `<strong>Worker Name:</strong> ${workerName}`;
-            nameBlock.style.marginBottom = "1rem";
 
             container.appendChild(heading);
             container.appendChild(nameBlock);
             container.appendChild(clonedTable);
             container.appendChild(clonedSummary);
 
-            // PDF Options
-            const options = {
+            html2pdf().set({
                 margin: 0.5,
                 filename: 'Support_Worker_Timesheet.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(options).from(container).save();
+            }).from(container).save();
         }
-
-
-
-        const clients = [
-            "WAYNE", "RICHARD", "SANDRA", "JAYDEN", "LANI",
-            "JESS", "LORNA", "AMY", "CHRIS", "BRENDAN", "KIMBERLEY COURT"
-        ];
 
         const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         const accordion = document.getElementById('dayAccordion');
@@ -297,61 +228,61 @@
             const dayTitle = day.charAt(0).toUpperCase() + day.slice(1);
             const card = document.createElement('div');
             card.className = 'accordion-item';
-            card.innerHTML = `<h2 class="accordion-header" id="heading${day}">
-
-<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${day}" aria-expanded="false" aria-controls="collapse${day}">
-${dayTitle}
-</button>
-</h2>
-<div id="collapse${day}" class="accordion-collapse collapse" aria-labelledby="heading${day}" data-bs-parent="#dayAccordion">
-<div class="accordion-body">
-<label for="date">Enter Date</label>
-<input type="date" placeholder="Select Date" id="${day}Date" class="form-control mb-2" required />
-<div id="${day}Shifts"></div>
-<button type="button" class="btn btn-secondary w-100 mb-2" onclick="addShift('${day}')">➕ Add Shift</button>
-<button type="button" class="btn btn-success w-100" data-day="${day}" onclick="saveShift('${day}')">💾 Save Shifts</button>
-
-</div>
-</div>`;
+            card.innerHTML = `
+                <h2 class="accordion-header" id="heading${day}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${day}" aria-expanded="false" aria-controls="collapse${day}">
+                        ${dayTitle}
+                    </button>
+                </h2>
+                <div id="collapse${day}" class="accordion-collapse collapse" aria-labelledby="heading${day}" data-bs-parent="#dayAccordion">
+                    <div class="accordion-body">
+                        <label for="${day}Date" class="form-label">Date</label>
+                        <input type="date" id="${day}Date" class="form-control mb-2" required />
+                        <div id="${day}Shifts"></div>
+                        <button type="button" class="btn btn-secondary w-100 mb-2" onclick="addShift('${day}')">➕ Add Shift</button>
+                        <button type="button" class="btn btn-success w-100" onclick="saveShift('${day}')">💾 Save Shifts</button>
+                    </div>
+                </div>
+            `;
             accordion.appendChild(card);
         });
 
         function addShift(day) {
             const container = document.getElementById(`${day}Shifts`);
-
             const shiftCount = container.childElementCount + 1;
             if (shiftCount > 4) return alert('Maximum 4 shifts per day');
+
             const shiftRow = document.createElement('div');
             shiftRow.className = 'row g-2 mb-2';
             shiftRow.innerHTML = `
-<div class="col-6 col-md-3">
-    <label for="${day}StartTime${shiftCount}" class="form-label">Start</label>
-    <input type="time" id="${day}StartTime${shiftCount}" class="form-control">
-</div>
-<div class="col-6 col-md-3">
-    <label for="${day}EndTime${shiftCount}" class="form-label">End</label>
-    <input type="time" id="${day}EndTime${shiftCount}" class="form-control">
-</div>
-<div class="col-6 col-md-3">
-    <label for="${day}ShiftType${shiftCount}" class="form-label">Type</label>
-    <select id="${day}ShiftType${shiftCount}" class="form-select">
-        <option value="standard">Standard</option>
-        <option value="sleepover">Sleepover</option>
-        <option value="annual leave">Annual Leave</option>
-        <option value="personal leave">Personal Leave</option>
-    </select>
-</div>
-<div class="col-6 col-md-3">
-    <label for="${day}Client${shiftCount}" class="form-label">Client</label>
-    <select id="${day}Client${shiftCount}" class="form-select">
-        ${clients.map(client => `
-        <option value="${client}">${client}</option>`).join('')}
-    </select>
-</div>
-`;
+                <div class="col-6 col-md-3">
+                    <label for="${day}StartTime${shiftCount}" class="form-label">Start</label>
+                    <input type="time" id="${day}StartTime${shiftCount}" class="form-control">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="${day}EndTime${shiftCount}" class="form-label">End</label>
+                    <input type="time" id="${day}EndTime${shiftCount}" class="form-control">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="${day}ShiftType${shiftCount}" class="form-label">Type</label>
+                    <select id="${day}ShiftType${shiftCount}" class="form-select">
+                        <option value="standard">Standard</option>
+                        <option value="sleepover">Sleepover</option>
+                        <option value="annual leave">Annual Leave</option>
+                        <option value="personal leave">Personal Leave</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="${day}Client${shiftCount}" class="form-label">Client</label>
+                    <select id="${day}Client${shiftCount}" class="form-select">
+                        ${clients.map(client => `<option value="${client}">${client}</option>`).join("")}
+                    </select>
+                </div>
+            `;
             container.appendChild(shiftRow);
         }
     </script>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

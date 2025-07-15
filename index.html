@@ -289,7 +289,8 @@ ${dayTitle}
 </h2>
 <div id="collapse${day}" class="accordion-collapse collapse" aria-labelledby="heading${day}" data-bs-parent="#dayAccordion">
 <div class="accordion-body">
-<input type="date" placeholder="Select Date" id="${day}Date" class="form-control mb-2" required />
+<label for="date">Enter Date</label>
+<input type="date" id="${day}Date" class="form-control mb-2" required />
 <div id="${day}Shifts"></div>
 <button type="button" class="btn btn-secondary w-100 mb-2" onclick="addShift('${day}')">➕ Add Shift</button>
 <button type="button" class="btn btn-success w-100" data-day="${day}" onclick="saveShift('${day}')">💾 Save Shifts</button>

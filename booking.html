@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Book Your Stay - Cavatar Hotel</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body style="background: #0b0b10; background-image: none;">
+  <h2>Book Your Stay</h2>
+  <form id="bookingForm">
+    <label>Name:</label><input type="text" id="name" required><br>
+    <label>Check-in Date:</label><input type="date" id="checkin" required><br>
+    <label>Check-out Date:</label><input type="date" id="checkout" required><br>
+    <label>Room Type:</label>
+    <select id="room">
+      <option>Standard</option>
+      <option>Deluxe</option>
+      <option>Suite</option>
+    </select><br>
+    <button type="submit">Confirm Booking</button>
+  </form>
+
+  <div id="confirmation" class="hidden">
+    <h3>Booking Confirmed!</h3>
+    <p id="details"></p>
+    <a href="index.html">← Back to Home</a>
+  </div>
+
+  <script>
+    document.getElementById("bookingForm").onsubmit = function(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const room = document.getElementById("room").value;
+      const checkin = document.getElementById("checkin").value;
+      const checkout = document.getElementById("checkout").value;
+      document.getElementById("details").innerText =
+        `Thank you, ${name}! Your ${room} room is booked from ${checkin} to ${checkout}.`;
+      document.getElementById("bookingForm").classList.add("hidden");
+      document.getElementById("confirmation").classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>

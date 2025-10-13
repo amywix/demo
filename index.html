@@ -9,23 +9,24 @@
   <style>
     :root {
       --cavatar-z: 9999;
-      --cavatar-width: clamp(220px, 90vw, 400px);
-      --cavatar-height: clamp(320px, 65vh, 580px);
+      --cavatar-width: 140px;
+      --cavatar-height: 230px;
     }
 
-    /* ===== Avatar Panel ===== */
+    /* ===== Avatar Bubble (Default) ===== */
     #cavatar-root {
       position: fixed;
-      right: 16px;
-      bottom: calc(env(safe-area-inset-bottom) + 16px);
+      right: 12px;
+      bottom: calc(env(safe-area-inset-bottom) + 12px);
       width: var(--cavatar-width);
       height: var(--cavatar-height);
-      border-radius: 16px;
+      border-radius: 50%;
+      clip-path: circle(50% at 50% 50%);
       overflow: hidden;
-      box-shadow: 0 12px 36px rgba(0,0,0,.25);
+      background: transparent;
+      border: none;
+      box-shadow: 0 8px 28px rgba(0,0,0,.3);
       z-index: var(--cavatar-z);
-      background: #000;
-      border: 1px solid rgba(255,255,255,.15);
       display: none;
       transition: all 0.3s ease-in-out;
     }
@@ -37,31 +38,20 @@
       display: block;
     }
 
-    /* ===== Cutout Bubble Mode ===== */
-    #cavatar-root.cutout {
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      clip-path: circle(50% at 50% 50%);
-      background: transparent;
-      border: none;
-      box-shadow: 0 8px 24px rgba(0,0,0,.25);
-    }
-
     /* ===== Caption Overlay ===== */
     #cavatar-caption {
       position: fixed;
-      right: 16px;
-      bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 10px);
-      max-width: 420px;
-      background: rgba(0,0,0,.8);
+      right: 12px;
+      bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 8px);
+      max-width: 320px;
+      background: rgba(0,0,0,.78);
       color: #fff;
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-radius: 10px;
-      font: 500 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      font: 500 13px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
       z-index: var(--cavatar-z);
       display: none;
-      backdrop-filter: blur(6px) saturate(120%);
+      backdrop-filter: saturate(120%) blur(6px);
       box-shadow: 0 6px 20px rgba(0,0,0,.25);
       transition: opacity 0.25s ease;
     }
@@ -69,10 +59,10 @@
     /* ===== Controls ===== */
     #cavatar-controls {
       position: fixed;
-      right: 20px;
-      bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 55px);
+      right: 16px;
+      bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 45px);
       display: flex;
-      gap: 8px;
+      gap: 6px;
       z-index: var(--cavatar-z);
     }
 
@@ -80,13 +70,13 @@
       appearance: none;
       border: 0;
       border-radius: 999px;
-      padding: 8px 12px;
+      padding: 6px 10px;
       background: #111827;
       color: #fff;
-      font: 600 12px/1 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-      box-shadow: 0 8px 20px rgba(0,0,0,.25);
+      font: 600 11px/1 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      box-shadow: 0 6px 18px rgba(0,0,0,.25);
       cursor: pointer;
-      opacity: 0.95;
+      opacity: .9;
       transition: all 0.2s ease;
     }
     .cavatar-btn:hover { opacity: 1; }
@@ -94,38 +84,25 @@
     /* ===== MOBILE ===== */
     @media (max-width: 540px) {
       :root {
-        --cavatar-width: clamp(240px, 94vw, 360px);
-        --cavatar-height: clamp(320px, 64vh, 520px);
+        --cavatar-width: 110px;
+        --cavatar-height: 180px;
       }
 
       #cavatar-root {
-        left: 50%;
-        right: auto;
-        bottom: calc(env(safe-area-inset-bottom) + 8px);
-        transform: translateX(-50%);
-        border-radius: 12px;
+        right: 10px;
+        bottom: calc(env(safe-area-inset-bottom) + 10px);
       }
 
       #cavatar-caption {
-        left: 50%;
-        right: auto;
-        bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 8px);
-        transform: translateX(-50%);
-        width: 92vw;
-        font-size: 13px;
-        line-height: 1.3;
+        right: 10px;
+        bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 6px);
+        max-width: 75vw;
+        font-size: 12px;
       }
 
       #cavatar-controls {
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
-        bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 50px);
-      }
-
-      .cavatar-btn {
-        padding: 6px 10px;
-        font-size: 11px;
+        right: 12px;
+        bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 40px);
       }
     }
   </style>
@@ -158,15 +135,15 @@
     <p class="text-gray-600">(Demo content trimmed for brevity)</p>
   </section>
 
-  <!-- ===== Avatar Elements ===== -->
-  <div id="cavatar-root" aria-live="polite" aria-label="Cavatar concierge video avatar">
+  <!-- ===== Avatar Bubble ===== -->
+  <div id="cavatar-root" class="cutout" aria-live="polite" aria-label="Cavatar concierge video avatar">
     <iframe id="cavatar-iframe" title="Cavatar Concierge" allow="microphone" referrerpolicy="no-referrer"></iframe>
   </div>
 
   <div id="cavatar-caption" role="status"></div>
 
   <div id="cavatar-controls" class="hidden">
-    <button id="cavatar-toggle-shape" class="cavatar-btn" title="Toggle cutout/panel">Bubble</button>
+    <button id="cavatar-toggle-shape" class="cavatar-btn" title="Toggle cutout/panel">Panel</button>
     <button id="cavatar-close" class="cavatar-btn" title="Hide avatar">Close</button>
   </div>
 
@@ -216,17 +193,16 @@
       setTimeout(() => showCaption('Welcome to Cavatar Hotel.'), 1200);
       setTimeout(() => showCaption('Ask me about rooms, spa, or dining.'), 5200);
 
+      // Toggle between bubble and panel
       btnShape.addEventListener('click', () => {
         root.classList.toggle('cutout');
         btnShape.textContent = root.classList.contains('cutout') ? 'Panel' : 'Bubble';
       });
+
+      // Close avatar
       btnClose.addEventListener('click', () => {
         root.style.display = 'none';
         caption.style.display = 'none';
-      });
-
-      window.addEventListener('resize', () => {
-        if (window.innerWidth < 540) root.style.transform = 'translateX(-50%)';
       });
     })();
   </script>
@@ -234,7 +210,7 @@
   <!-- ===== Contact & Footer ===== -->
   <section id="contact" class="max-w-7xl mx-auto px-4 py-16">
     <h3 class="text-2xl font-bold mb-4">Contact</h3>
-    <p class="text-gray-600">Try the avatar in the bottom corner — it automatically adapts to any screen size, supports cutout mode, and shows captions.</p>
+    <p class="text-gray-600">Try the avatar in the bottom-right corner — it’s mobile-sized, starts in bubble mode, and stays pinned neatly on all screens.</p>
   </section>
 
   <footer class="bg-gray-900 text-white py-10 text-center">

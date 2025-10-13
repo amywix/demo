@@ -1,269 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Cavatar Hotel – Luxury Redefined</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root {
-            --cavatar-z: 9999;
-            --cavatar-width: 140px;
-            --cavatar-height: 230px; /* 9:16 style panel */
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Cavatar Hotel – Luxury Redefined</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        /* ===== Avatar Panel (fixed, responsive) ===== */
-        #cavatar-root {
-            position: fixed;
-            right: 16px;
-            bottom: 16px;
-            width: var(--cavatar-width);
-            height: var(--cavatar-height);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 12px 36px rgba(0,0,0,.25);
-            z-index: var(--cavatar-z);
-            background: #000;
-            border: 1px solid rgba(255,255,255,.15);
-            display: none; /* shown after init */
-        }
+  <style>
+    :root {
+      --cavatar-z: 9999;
+      --cavatar-width: clamp(220px, 90vw, 400px);
+      --cavatar-height: clamp(320px, 65vh, 580px);
+    }
 
-        #cavatar-iframe {
-            width: 100%;
-            height: 100%;
-            border: 0;
-            display: block;
-        }
+    /* ===== Avatar Panel ===== */
+    #cavatar-root {
+      position: fixed;
+      right: 16px;
+      bottom: calc(env(safe-area-inset-bottom) + 16px);
+      width: var(--cavatar-width);
+      height: var(--cavatar-height);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0,0,0,.25);
+      z-index: var(--cavatar-z);
+      background: #000;
+      border: 1px solid rgba(255,255,255,.15);
+      display: none;
+      transition: all 0.3s ease-in-out;
+    }
 
-        /* ===== Optional "cutout" bubble mode ===== */
-        #cavatar-root.cutout {
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            clip-path: circle(50% at 50% 50%);
-            background: transparent;
-            border: none;
-            box-shadow: 0 10px 28px rgba(0,0,0,.25);
-        }
+    #cavatar-iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
 
-        /* ===== Caption overlay ===== */
-        #cavatar-caption {
-            position: fixed;
-            right: 16px;
-            bottom: calc(16px + var(--cavatar-height) + 8px);
-            max-width: 420px;
-            background: rgba(0,0,0,.78);
-            color: #fff;
-            padding: 10px 12px;
-            border-radius: 10px;
-            font: 500 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-            z-index: var(--cavatar-z);
-            display: none;
-            backdrop-filter: saturate(120%) blur(6px);
-            box-shadow: 0 6px 20px rgba(0,0,0,.25);
-        }
+    /* ===== Cutout Bubble Mode ===== */
+    #cavatar-root.cutout {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      clip-path: circle(50% at 50% 50%);
+      background: transparent;
+      border: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    }
 
-        /* ===== Controls (toggle bubble/panel, close) ===== */
-        #cavatar-controls {
-            position: fixed;
-            right: 20px;
-            bottom: calc(20px + var(--cavatar-height) + 50px);
-            display: flex;
-            gap: 8px;
-            z-index: var(--cavatar-z);
-        }
+    /* ===== Caption Overlay ===== */
+    #cavatar-caption {
+      position: fixed;
+      right: 16px;
+      bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 10px);
+      max-width: 420px;
+      background: rgba(0,0,0,.8);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font: 500 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      z-index: var(--cavatar-z);
+      display: none;
+      backdrop-filter: blur(6px) saturate(120%);
+      box-shadow: 0 6px 20px rgba(0,0,0,.25);
+      transition: opacity 0.25s ease;
+    }
 
-        .cavatar-btn {
-            appearance: none;
-            border: 0;
-            border-radius: 999px;
-            padding: 8px 12px;
-            background: #111827;
-            color: #fff;
-            font: 600 12px/1 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-            box-shadow: 0 8px 20px rgba(0,0,0,.25);
-            cursor: pointer;
-            opacity: .95;
-        }
+    /* ===== Controls ===== */
+    #cavatar-controls {
+      position: fixed;
+      right: 20px;
+      bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 55px);
+      display: flex;
+      gap: 8px;
+      z-index: var(--cavatar-z);
+    }
 
-            .cavatar-btn:hover {
-                opacity: 1;
-            }
+    .cavatar-btn {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: #111827;
+      color: #fff;
+      font: 600 12px/1 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      box-shadow: 0 8px 20px rgba(0,0,0,.25);
+      cursor: pointer;
+      opacity: 0.95;
+      transition: all 0.2s ease;
+    }
+    .cavatar-btn:hover { opacity: 1; }
 
-        /* ===== Mobile ===== */
-        @media (max-width: 540px) {
-            :root {
-                --cavatar-width: 94vw;
-                --cavatar-height: 64vh;
-            }
+    /* ===== MOBILE ===== */
+    @media (max-width: 540px) {
+      :root {
+        --cavatar-width: clamp(240px, 94vw, 360px);
+        --cavatar-height: clamp(320px, 64vh, 520px);
+      }
 
-           #cavatar-root {
-    left: 50%;
-    right: auto;
-    bottom: 8px;
-    transform: translateX(-50%);
-    border-radius: 12px;
-  }
+      #cavatar-root {
+        left: 50%;
+        right: auto;
+        bottom: calc(env(safe-area-inset-bottom) + 8px);
+        transform: translateX(-50%);
+        border-radius: 12px;
+      }
 
-          #cavatar-caption {
-    left: 50%;
-    right: auto;
-    bottom: calc(8px + var(--cavatar-height) + 8px);
-    transform: translateX(-50%);
-    width: 90vw;
-    max-width: 90vw;
-    font-size: 13px;
-    line-height: 1.3;
-  }
+      #cavatar-caption {
+        left: 50%;
+        right: auto;
+        bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 8px);
+        transform: translateX(-50%);
+        width: 92vw;
+        font-size: 13px;
+        line-height: 1.3;
+      }
 
-            #cavatar-controls {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    bottom: calc(8px + var(--cavatar-height) + 45px);
-  }
- 
-  
+      #cavatar-controls {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 50px);
+      }
 
-  .cavatar-btn {
-    padding: 6px 10px;
-    font-size: 11px;
-  }
-}
-
-    </style>
+      .cavatar-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+    }
+  </style>
 </head>
-<body class="font-sans antialiased">
 
-    <!-- ===== Simple page header (trimmed) ===== -->
-    <header class="sticky top-0 z-[50] bg-white/80 backdrop-blur border-b">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <h1 class="text-xl md:text-2xl font-bold">🏨 Cavatar Hotel</h1>
-            <nav class="hidden md:flex gap-6 text-sm text-gray-600">
-                <a href="#rooms" class="hover:text-purple-600">Rooms</a>
-                <a href="#amenities" class="hover:text-purple-600">Amenities</a>
-                <a href="#contact" class="hover:text-purple-600">Contact</a>
-            </nav>
-        </div>
-    </header>
-
-    <main>
-        <section class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
-            <div class="max-w-7xl mx-auto px-4 py-16 text-center">
-                <h2 class="text-4xl md:text-6xl font-extrabold mb-4">Welcome to Cavatar Hotel</h2>
-                <p class="text-lg md:text-2xl opacity-90 max-w-3xl mx-auto">Experience luxury redefined with our AI-powered concierge. Where technology meets hospitality.</p>
-            </div>
-        </section>
-
-        <section id="rooms" class="max-w-7xl mx-auto px-4 py-12">
-            <h3 class="text-2xl font-bold mb-4">Rooms</h3>
-            <p class="text-gray-600">(Demo content trimmed for brevity)</p>
-        </section>
-    </main>
-
-    <!-- ===== Avatar: container, captions, controls ===== -->
-    <div id="cavatar-root" aria-live="polite" aria-label="Cavatar concierge video avatar">
-        <iframe id="cavatar-iframe" title="Cavatar Concierge" allow="microphone" referrerpolicy="no-referrer"></iframe>
+<body class="font-sans antialiased bg-white">
+  <!-- ===== Header ===== -->
+  <header class="sticky top-0 z-[50] bg-white/80 backdrop-blur border-b">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <h1 class="text-xl md:text-2xl font-bold">🏨 Cavatar Hotel</h1>
+      <nav class="hidden md:flex gap-6 text-sm text-gray-600">
+        <a href="#rooms" class="hover:text-purple-600">Rooms</a>
+        <a href="#amenities" class="hover:text-purple-600">Amenities</a>
+        <a href="#contact" class="hover:text-purple-600">Contact</a>
+      </nav>
     </div>
+  </header>
 
-    <div id="cavatar-caption" role="status"></div>
-
-    <div id="cavatar-controls" class="hidden">
-        <button id="cavatar-toggle-shape" class="cavatar-btn" title="Toggle cutout/panel">Bubble</button>
-        <button id="cavatar-close" class="cavatar-btn" title="Hide avatar">Close</button>
+  <!-- ===== Hero ===== -->
+  <section class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-center">
+    <div class="max-w-7xl mx-auto px-4 py-16">
+      <h2 class="text-4xl md:text-6xl font-extrabold mb-4">Welcome to Cavatar Hotel</h2>
+      <p class="text-lg md:text-2xl opacity-90 max-w-3xl mx-auto">Experience luxury redefined with our AI-powered concierge. Where technology meets hospitality.</p>
     </div>
+  </section>
 
-    <script>
-        /**
-         * Cavatar – clean HeyGen embed with mobile adapt + optional captions.
-         * Fixes in this build:
-         *  - Removed duplicated/competing HeyGen scripts.
-         *  - Eliminated Cloudflare challenge snippet that was breaking execution.
-         *  - Single iframe initialized after DOMReady; shows only when HeyGen sends "init".
-         *  - Responsive panel + optional circular "cutout" bubble mode.
-         *  - Caption overlay with fallback (simulated text), and listener for future transcript events.
-         */
+  <!-- ===== Rooms Section ===== -->
+  <section id="rooms" class="max-w-7xl mx-auto px-4 py-12">
+    <h3 class="text-2xl font-bold mb-4">Rooms</h3>
+    <p class="text-gray-600">(Demo content trimmed for brevity)</p>
+  </section>
 
-        (function () {
-            const HOST = "https://labs.heygen.com";
-            // === Paste your full share URL here (must include the encoded `share=...` param) ===
-            const SHARE_URL = HOST + "/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiIwOWQxNDJjZWMyY2Q0ZjkzYjZlMTBiYmI3NTdlMzM2OCIsInByZXZpZXdJbWciOiJodHRwczovL2ZpbGVzMi5oZXlnZW4uYWkvYXZhdGFyL3YzLzA5ZDE0MmNlYzJjZDRmOTNiNmUxMGJiYjc1N2UzMzY4L2Z1bGwvMi4yL3ByZXZpZXdfdGFyZ2V0LndlYnAiLCJuZWVkUmVtb3ZlQmFja2dyb3VuZCI6ZmFsc2UsImtub3dsZWRnZUJhc2VJZCI6IjQ5OWM2NDcyMjBiZTRmZDI5OWY4YWQ3N2ZiMGM0YTVmIiwidXNlcm5hbWUiOiI4NjM0NTdjMTNlYjM0YjVlOTVjOGZmMmJhN2Q1MzEwMSJ9&inIFrame=1";
+  <!-- ===== Avatar Elements ===== -->
+  <div id="cavatar-root" aria-live="polite" aria-label="Cavatar concierge video avatar">
+    <iframe id="cavatar-iframe" title="Cavatar Concierge" allow="microphone" referrerpolicy="no-referrer"></iframe>
+  </div>
 
-            const root = document.getElementById('cavatar-root');
-            const iframe = document.getElementById('cavatar-iframe');
-            const caption = document.getElementById('cavatar-caption');
-            const controls = document.getElementById('cavatar-controls');
-            const btnShape = document.getElementById('cavatar-toggle-shape');
-            const btnClose = document.getElementById('cavatar-close');
+  <div id="cavatar-caption" role="status"></div>
 
-            // Load the HeyGen iframe
-            iframe.src = SHARE_URL;
+  <div id="cavatar-controls" class="hidden">
+    <button id="cavatar-toggle-shape" class="cavatar-btn" title="Toggle cutout/panel">Bubble</button>
+    <button id="cavatar-close" class="cavatar-btn" title="Hide avatar">Close</button>
+  </div>
 
-            // PostMessage bridge – show/hide and (future) transcripts
-            window.addEventListener('message', (e) => {
-                if (e.origin !== HOST || !e.data || e.data.type !== 'streaming-embed') return;
+  <!-- ===== Script ===== -->
+  <script>
+    (function () {
+      const HOST = "https://labs.heygen.com";
+      const SHARE_URL = HOST + "/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiIwOWQxNDJjZWMyY2Q0ZjkzYjZlMTBiYmI3NTdlMzM2OCIsInByZXZpZXdJbWciOiJodHRwczovL2ZpbGVzMi5oZXlnZW4uYWkvYXZhdGFyL3YzLzA5ZDE0MmNlYzJjZDRmOTNiNmUxMGJiYjc1N2UzMzY4L2Z1bGwvMi4yL3ByZXZpZXdfdGFyZ2V0LndlYnAiLCJuZWVkUmVtb3ZlQmFja2dyb3VuZCI6ZmFsc2UsImtub3dsZWRnZUJhc2VJZCI6IjQ5OWM2NDcyMjBiZTRmZDI5OWY4YWQ3N2ZiMGM0YTVmIiwidXNlcm5hbWUiOiI4NjM0NTdjMTNlYjM0YjVlOTVjOGZmMmJhN2Q1MzEwMSJ9&inIFrame=1";
 
-                switch (e.data.action) {
-                    case 'init':
-                        root.style.display = 'block';
-                        controls.classList.remove('hidden');
-                        // Intro caption (optional)
-                        showCaption("Hi there! I'm your virtual concierge. How can I help?");
-                        break;
+      const root = document.getElementById('cavatar-root');
+      const iframe = document.getElementById('cavatar-iframe');
+      const caption = document.getElementById('cavatar-caption');
+      const controls = document.getElementById('cavatar-controls');
+      const btnShape = document.getElementById('cavatar-toggle-shape');
+      const btnClose = document.getElementById('cavatar-close');
 
-                    case 'show':
-                        // Some shares send explicit show/hide events when user expands UI
-                        root.style.display = 'block';
-                        break;
+      iframe.src = SHARE_URL;
 
-                    case 'hide':
-                        root.style.display = 'none';
-                        caption.style.display = 'none';
-                        break;
+      window.addEventListener('message', (e) => {
+        if (e.origin !== HOST || !e.data || e.data.type !== 'streaming-embed') return;
 
-                    // If/when HeyGen exposes transcript payloads, handle them here
-                    case 'transcript':
-                    case 'subtitle': {
-                        const text = (e.data.payload && (e.data.payload.text || e.data.payload.caption)) || e.data.text;
-                        if (text) showCaption(text, 3500);
-                        break;
-                    }
-                }
-            });
+        switch (e.data.action) {
+          case 'init':
+            root.style.display = 'block';
+            controls.classList.remove('hidden');
+            showCaption("Hi there! I'm your virtual concierge. How can I help?");
+            break;
+          case 'hide':
+            root.style.display = 'none';
+            caption.style.display = 'none';
+            break;
+          case 'transcript':
+          case 'subtitle':
+            const text = (e.data.payload && (e.data.payload.text || e.data.payload.caption)) || e.data.text;
+            if (text) showCaption(text, 3500);
+            break;
+        }
+      });
 
-            // Simple caption helper (fallback if no live transcript events)
-            function showCaption(text, ms = 4000) {
-                caption.textContent = text;
-                caption.style.display = 'block';
-                clearTimeout(showCaption._t);
-                showCaption._t = setTimeout(() => { caption.style.display = 'none'; }, ms);
-            }
+      function showCaption(text, ms = 4000) {
+        caption.textContent = text;
+        caption.style.display = 'block';
+        clearTimeout(showCaption._t);
+        showCaption._t = setTimeout(() => caption.style.display = 'none', ms);
+      }
 
-            // Demo fallback captions in case transcript events are not emitted
-            // (Remove if you enable real-time transcript messages.)
-            setTimeout(() => showCaption('Welcome to Cavatar Hotel.'), 1200);
-            setTimeout(() => showCaption('Ask me about rooms, spa, or dining.'), 5200);
+      setTimeout(() => showCaption('Welcome to Cavatar Hotel.'), 1200);
+      setTimeout(() => showCaption('Ask me about rooms, spa, or dining.'), 5200);
 
-            // UI Controls
-            btnShape.addEventListener('click', () => {
-                root.classList.toggle('cutout');
-                btnShape.textContent = root.classList.contains('cutout') ? 'Panel' : 'Bubble';
-            });
-            btnClose.addEventListener('click', () => {
-                root.style.display = 'none';
-                caption.style.display = 'none';
-            });
-        })();
-    </script>
+      btnShape.addEventListener('click', () => {
+        root.classList.toggle('cutout');
+        btnShape.textContent = root.classList.contains('cutout') ? 'Panel' : 'Bubble';
+      });
+      btnClose.addEventListener('click', () => {
+        root.style.display = 'none';
+        caption.style.display = 'none';
+      });
 
-    <!-- ===== Contact (trimmed) ===== -->
-    <section id="contact" class="max-w-7xl mx-auto px-4 py-16">
-        <h3 class="text-2xl font-bold mb-4">Contact</h3>
-        <p class="text-gray-600">Try the avatar in the bottom corner on mobile or desktop. It adapts to screen size, supports a circular cutout mode, and shows captions.</p>
-    </section>
+      window.addEventListener('resize', () => {
+        if (window.innerWidth < 540) root.style.transform = 'translateX(-50%)';
+      });
+    })();
+  </script>
 
-    <footer class="bg-gray-900 text-white py-10 text-center">
-        <p class="opacity-80">© 2025 Cavatar Hotel. All rights reserved.</p>
-    </footer>
+  <!-- ===== Contact & Footer ===== -->
+  <section id="contact" class="max-w-7xl mx-auto px-4 py-16">
+    <h3 class="text-2xl font-bold mb-4">Contact</h3>
+    <p class="text-gray-600">Try the avatar in the bottom corner — it automatically adapts to any screen size, supports cutout mode, and shows captions.</p>
+  </section>
+
+  <footer class="bg-gray-900 text-white py-10 text-center">
+    <p class="opacity-80">© 2025 Cavatar Hotel. All rights reserved.</p>
+  </footer>
 </body>
 </html>

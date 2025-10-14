@@ -3,120 +3,146 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Cavatar Hotel – Luxury Redefined</title>
+  <title>Cavatar Hotel – Interactive AI Concierge</title>
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     :root {
       --cavatar-z: 9999;
-      --cavatar-width: 140px;
-      --cavatar-height: 230px;
+      --cavatar-width: 240px;
+      --cavatar-height: 420px;
     }
 
-    /* ===== Avatar Bubble (Default) ===== */
+    /* ===== Avatar Frame ===== */
     #cavatar-root {
       position: fixed;
-      right: 12px;
-      bottom: calc(env(safe-area-inset-bottom) + 12px);
+      right: 16px;
+      bottom: calc(env(safe-area-inset-bottom) + 16px);
       width: var(--cavatar-width);
       height: var(--cavatar-height);
-      border-radius: 50%;
-      clip-path: circle(50% at 50% 50%);
+      border-radius: 18px;
       overflow: hidden;
-      background: transparent;
-      border: none;
-      box-shadow: 0 8px 28px rgba(0,0,0,.3);
+      background: #000;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
       z-index: var(--cavatar-z);
-      display: none;
-      transition: all 0.3s ease-in-out;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
     }
+    #cavatar-root.show { opacity: 1; transform: translateY(0); }
 
     #cavatar-iframe {
       width: 100%;
       height: 100%;
       border: 0;
       display: block;
+      object-fit: contain;
     }
 
-    /* ===== Caption Overlay ===== */
+    /* ===== Caption Bubble ===== */
     #cavatar-caption {
       position: fixed;
-      right: 12px;
-      bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 8px);
+      right: 20px;
+      bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 16px);
       max-width: 320px;
-      background: rgba(0,0,0,.78);
+      background: rgba(0, 0, 0, 0.78);
       color: #fff;
-      padding: 8px 10px;
-      border-radius: 10px;
-      font: 500 13px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      padding: 10px 14px;
+      border-radius: 14px;
+      font: 500 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
       z-index: var(--cavatar-z);
       display: none;
-      backdrop-filter: saturate(120%) blur(6px);
-      box-shadow: 0 6px 20px rgba(0,0,0,.25);
-      transition: opacity 0.25s ease;
+      backdrop-filter: blur(6px) saturate(120%);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+      transition: opacity 0.3s ease;
     }
 
-    /* ===== Controls ===== */
-    #cavatar-controls {
+    #book-btn {
+      display: inline-block;
+      margin-top: 8px;
+      background: #6366f1;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #book-btn:hover { background: #4f46e5; }
+
+    /* ===== Booking Modal ===== */
+    #booking-modal {
       position: fixed;
       right: 16px;
-      bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 45px);
-      display: flex;
-      gap: 6px;
+      bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 70px);
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.35);
       z-index: var(--cavatar-z);
+      padding: 16px;
+      width: 280px;
+      display: none;
+      animation: fadeIn 0.3s ease;
     }
 
-    .cavatar-btn {
-      appearance: none;
-      border: 0;
-      border-radius: 999px;
-      padding: 6px 10px;
-      background: #111827;
-      color: #fff;
-      font: 600 11px/1 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-      box-shadow: 0 6px 18px rgba(0,0,0,.25);
-      cursor: pointer;
-      opacity: .9;
-      transition: all 0.2s ease;
+    #booking-modal input, #booking-modal select {
+      width: 100%;
+      margin-top: 6px;
+      margin-bottom: 10px;
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 13px;
     }
-    .cavatar-btn:hover { opacity: 1; }
+
+    #booking-modal button {
+      background: #6366f1;
+      color: white;
+      padding: 8px 10px;
+      border-radius: 6px;
+      width: 100%;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #booking-modal button:hover { background: #4f46e5; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     /* ===== MOBILE ===== */
     @media (max-width: 540px) {
       :root {
-        --cavatar-width: 110px;
-        --cavatar-height: 180px;
+        --cavatar-width: 180px;
+        --cavatar-height: 320px;
       }
 
-      #cavatar-root {
-        right: 10px;
-        bottom: calc(env(safe-area-inset-bottom) + 10px);
-      }
+      #cavatar-root { right: 10px; bottom: calc(env(safe-area-inset-bottom) + 12px); }
 
       #cavatar-caption {
         right: 10px;
-        bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 6px);
+        bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 10px);
         max-width: 75vw;
         font-size: 12px;
       }
 
-      #cavatar-controls {
-        right: 12px;
-        bottom: calc(env(safe-area-inset-bottom) + var(--cavatar-height) + 40px);
-      }
+      #booking-modal { right: 10px; width: 85vw; }
     }
   </style>
 </head>
 
-<body class="font-sans antialiased bg-white">
+<body class="font-sans antialiased bg-white scroll-smooth">
   <!-- ===== Header ===== -->
   <header class="sticky top-0 z-[50] bg-white/80 backdrop-blur border-b">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-      <h1 class="text-xl md:text-2xl font-bold">🏨 Cavatar Hotel</h1>
+      <h1 class="text-xl md:text-2xl font-bold text-indigo-600">🏨 Cavatar Hotel</h1>
       <nav class="hidden md:flex gap-6 text-sm text-gray-600">
-        <a href="#rooms" class="hover:text-purple-600">Rooms</a>
-        <a href="#amenities" class="hover:text-purple-600">Amenities</a>
-        <a href="#contact" class="hover:text-purple-600">Contact</a>
+        <a href="#rooms" class="hover:text-indigo-500">Rooms</a>
+        <a href="#amenities" class="hover:text-indigo-500">Amenities</a>
+        <a href="#contact" class="hover:text-indigo-500">Contact</a>
       </nav>
     </div>
   </header>
@@ -125,29 +151,65 @@
   <section class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-center">
     <div class="max-w-7xl mx-auto px-4 py-16">
       <h2 class="text-4xl md:text-6xl font-extrabold mb-4">Welcome to Cavatar Hotel</h2>
-      <p class="text-lg md:text-2xl opacity-90 max-w-3xl mx-auto">Experience luxury redefined with our AI-powered concierge. Where technology meets hospitality.</p>
+      <p class="text-lg md:text-2xl opacity-90 max-w-3xl mx-auto">
+        Where technology meets hospitality — experience luxury redefined with our AI-powered concierge.
+      </p>
+      <a href="#rooms" class="mt-8 inline-block bg-white text-indigo-600 font-semibold px-6 py-3 rounded-lg shadow hover:bg-indigo-100 transition">Explore Rooms</a>
     </div>
   </section>
 
   <!-- ===== Rooms Section ===== -->
-  <section id="rooms" class="max-w-7xl mx-auto px-4 py-12">
-    <h3 class="text-2xl font-bold mb-4">Rooms</h3>
-    <p class="text-gray-600">(Demo content trimmed for brevity)</p>
+  <section id="rooms" class="max-w-7xl mx-auto px-4 py-16">
+    <h3 class="text-3xl font-bold mb-8 text-gray-800 text-center">Our Signature Rooms</h3>
+
+    <div class="grid md:grid-cols-2 gap-10">
+      <!-- Room 1 -->
+      <div class="rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-2xl transition transform hover:-translate-y-1">
+        <img src="https://images.unsplash.com/photo-1501117716987-c8e1ecb21061?auto=format&fit=crop&w=1200&q=80" alt="Deluxe Ocean Suite" class="w-full h-64 object-cover">
+        <div class="p-6">
+          <h4 class="text-2xl font-semibold mb-2 text-indigo-600">Deluxe Ocean Suite</h4>
+          <p class="text-gray-600 mb-4">
+            Wake up to breathtaking ocean views, a king-size bed, smart room automation, and an ensuite marble bathroom.
+          </p>
+          <p class="text-lg font-semibold text-gray-800">$349 / night</p>
+        </div>
+      </div>
+
+      <!-- Room 2 -->
+      <div class="rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-2xl transition transform hover:-translate-y-1">
+        <img src="https://images.unsplash.com/photo-1590490350335-4d86b1a1be8e?auto=format&fit=crop&w=1200&q=80" alt="Executive City Suite" class="w-full h-64 object-cover">
+        <div class="p-6">
+          <h4 class="text-2xl font-semibold mb-2 text-indigo-600">Executive City Suite</h4>
+          <p class="text-gray-600 mb-4">
+            Enjoy skyline views, a workspace, luxury lounge, and complimentary smart minibar — perfect for business travelers.
+          </p>
+          <p class="text-lg font-semibold text-gray-800">$289 / night</p>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <!-- ===== Avatar Bubble ===== -->
-  <div id="cavatar-root" class="cutout" aria-live="polite" aria-label="Cavatar concierge video avatar">
-    <iframe id="cavatar-iframe" title="Cavatar Concierge" allow="microphone" referrerpolicy="no-referrer"></iframe>
+  <!-- ===== Avatar Embed ===== -->
+  <div id="cavatar-root" aria-live="polite">
+    <iframe id="cavatar-iframe" allow="microphone" referrerpolicy="no-referrer" title="Cavatar Concierge"></iframe>
   </div>
 
   <div id="cavatar-caption" role="status"></div>
 
-  <div id="cavatar-controls" class="hidden">
-    <button id="cavatar-toggle-shape" class="cavatar-btn" title="Toggle cutout/panel">Panel</button>
-    <button id="cavatar-close" class="cavatar-btn" title="Hide avatar">Close</button>
+  <!-- ===== Booking Form ===== -->
+  <div id="booking-modal">
+    <h3 class="font-bold text-gray-800 mb-2">Book a Room</h3>
+    <input type="text" id="guestName" placeholder="Full Name" required />
+    <input type="email" id="guestEmail" placeholder="Email" required />
+    <select id="roomType">
+      <option>Deluxe Ocean Suite</option>
+      <option>Executive City Suite</option>
+    </select>
+    <input type="date" id="checkIn" />
+    <input type="date" id="checkOut" />
+    <button id="submitBooking">Confirm Booking</button>
   </div>
 
-  <!-- ===== Script ===== -->
   <script>
     (function () {
       const HOST = "https://labs.heygen.com";
@@ -156,65 +218,65 @@
       const root = document.getElementById('cavatar-root');
       const iframe = document.getElementById('cavatar-iframe');
       const caption = document.getElementById('cavatar-caption');
-      const controls = document.getElementById('cavatar-controls');
-      const btnShape = document.getElementById('cavatar-toggle-shape');
-      const btnClose = document.getElementById('cavatar-close');
+      const modal = document.getElementById('booking-modal');
 
       iframe.src = SHARE_URL;
 
-      window.addEventListener('message', (e) => {
-        if (e.origin !== HOST || !e.data || e.data.type !== 'streaming-embed') return;
-
-        switch (e.data.action) {
-          case 'init':
-            root.style.display = 'block';
-            controls.classList.remove('hidden');
-            showCaption("Hi there! I'm your virtual concierge. How can I help?");
-            break;
-          case 'hide':
-            root.style.display = 'none';
-            caption.style.display = 'none';
-            break;
-          case 'transcript':
-          case 'subtitle':
-            const text = (e.data.payload && (e.data.payload.text || e.data.payload.caption)) || e.data.text;
-            if (text) showCaption(text, 3500);
-            break;
-        }
+      iframe.addEventListener('load', () => {
+        root.classList.add('show');
+        playGreetingSequence();
       });
 
-      function showCaption(text, ms = 4000) {
-        caption.textContent = text;
+      function showCaption(text, ms = 4000, withButton = false) {
+        caption.innerHTML = text;
+        if (withButton) caption.innerHTML += `<div id="book-btn">Book a Room</div>`;
         caption.style.display = 'block';
         clearTimeout(showCaption._t);
         showCaption._t = setTimeout(() => caption.style.display = 'none', ms);
+        const btn = document.getElementById('book-btn');
+        if (btn) btn.onclick = () => modal.style.display = 'block';
       }
 
-      setTimeout(() => showCaption('Welcome to Cavatar Hotel.'), 1200);
-      setTimeout(() => showCaption('Ask me about rooms, spa, or dining.'), 5200);
+      function playGreetingSequence() {
+        setTimeout(() => speakAndCaption("Welcome to Cavatar Hotel!"), 1000);
+        setTimeout(() => speakAndCaption("I'm your AI concierge — here to assist you today."), 5000);
+        setTimeout(() => speakAndCaption("Would you like to see our luxury rooms or make a booking?", true), 9000);
+      }
 
-      // Toggle between bubble and panel
-      btnShape.addEventListener('click', () => {
-        root.classList.toggle('cutout');
-        btnShape.textContent = root.classList.contains('cutout') ? 'Panel' : 'Bubble';
-      });
+      function speakAndCaption(text, withButton = false) {
+        iframe.contentWindow.postMessage({
+          type: "streaming-embed",
+          action: "speak",
+          payload: { text }
+        }, "*");
+        showCaption(text, 5000, withButton);
+      }
 
-      // Close avatar
-      btnClose.addEventListener('click', () => {
-        root.style.display = 'none';
-        caption.style.display = 'none';
+      document.getElementById('submitBooking').onclick = () => {
+        const name = document.getElementById('guestName').value.trim();
+        const email = document.getElementById('guestEmail').value.trim();
+        if (!name || !email) return alert("Please enter name and email.");
+        modal.style.display = 'none';
+        speakAndCaption(`Thank you, ${name}. Your ${document.getElementById('roomType').value} is reserved!`);
+      };
+
+      window.addEventListener('message', (e) => {
+        if (e.origin !== HOST || !e.data || e.data.type !== 'streaming-embed') return;
+        if (e.data.action === 'subtitle' || e.data.action === 'transcript') {
+          const text = e.data.payload?.text || e.data.payload?.caption || e.data.text;
+          if (text) showCaption(text, 3500);
+        }
       });
     })();
   </script>
 
   <!-- ===== Contact & Footer ===== -->
-  <section id="contact" class="max-w-7xl mx-auto px-4 py-16">
+  <section id="contact" class="max-w-7xl mx-auto px-4 py-16 text-center">
     <h3 class="text-2xl font-bold mb-4">Contact</h3>
-    <p class="text-gray-600">Try the avatar in the bottom-right corner — it’s mobile-sized, starts in bubble mode, and stays pinned neatly on all screens.</p>
+    <p class="text-gray-600">
+      This interactive prototype demonstrates how an AI avatar concierge can welcome guests, show rooms, and take bookings.
+    </p>
+    <p class="mt-4 text-indigo-600 font-semibold">© 2025 Cavatar Hotel. All rights reserved.</p>
   </section>
-
-  <footer class="bg-gray-900 text-white py-10 text-center">
-    <p class="opacity-80">© 2025 Cavatar Hotel. All rights reserved.</p>
-  </footer>
 </body>
 </html>

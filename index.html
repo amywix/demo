@@ -1,190 +1,993 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Cavatar Hotel – AI Concierge Virtual Tour</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>Cavatar Multi-Demo – Retail • Hotel • Real Estate • Beauty</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
-    body { font-family: system-ui, sans-serif; margin: 0; background: #fff; overflow-x: hidden; }
-    header { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border-bottom: 1px solid #ddd; }
-    main { max-width: 1200px; margin: auto; padding: 1rem; }
-
-    #cavatar-root {
-      position: fixed;
-      right: 16px;
-      bottom: 16px;
-      height: 210px;
-      width: 120px;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #000;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
-      z-index: 9999;
-      opacity: 0;
-      transition: opacity 0.5s ease;
+    body {
+      margin: 0;
+      background: #020617;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #f9fafb;
     }
-    #cavatar-root.show { opacity: 1; }
-    #cavatar-iframe { width: 100%; height: 100%; border: none; display: block; }
 
-    #avatar-ui { position: fixed; right: 150px; bottom: 120px; background: rgba(255,255,255,0.95); border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.2); padding: 14px; display: none; width: 200px; z-index: 9998; }
-    #avatar-ui button { display: block; width: 100%; margin: 6px 0; background: #6366f1; color: white; padding: 6px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; }
-    #avatar-ui button:hover { background: #4f46e5; }
-
-    #booking-modal, #check-modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.3); padding:20px; z-index:10000; width:320px; }
-    #booking-modal input, #check-modal input, #booking-modal select { width:100%; margin:6px 0; padding:6px; border:1px solid #ccc; border-radius:6px; }
-    #booking-modal button, #check-modal button { background:#6366f1; color:white; padding:8px 10px; border-radius:6px; width:100%; border:none; cursor:pointer; }
-    #booking-modal button:hover, #check-modal button:hover { background:#4f46e5; }
-
-    @media (max-width: 768px) {
-      main { padding: 0.5rem; }
-      #cavatar-root { width: 100px; height: 180px; right: 8px; bottom: 8px; }
-      #avatar-ui { right: 120px; bottom: 100px; width: 160px; }
-      #booking-modal, #check-modal { width: 90%; }
+    .page {
+      width: 390px;
+      max-width: 100%;
+      padding: 16px;
     }
+
+    /* TAB BAR */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      background: #020617;
+      padding: 4px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+      box-shadow: 0 0 0 1px rgba(148,163,184,.4);
+    }
+
+    .tab {
+      flex: 1;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      background: transparent;
+      color: #9ca3af;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab:hover {
+      background: rgba(15,23,42,.9);
+      color: #e5e7eb;
+    }
+
+    .tab.active {
+      color: #020617;
+      font-weight: 600;
+      box-shadow: 0 0 16px rgba(15,23,42,.6);
+    }
+
+    /* Active tab colours (Option A – match page theme) */
+    .tab[data-target="retail"].active {
+      background: #c9a45c;
+    }
+
+    .tab[data-target="hotel"].active {
+      background: #38bdf8; /* sky blue */
+    }
+
+    .tab[data-target="realestate"].active {
+      background: #22c55e; /* emerald */
+    }
+
+    .tab[data-target="beauty"].active {
+      background: hotpink;
+    }
+
+    /* PANELS */
+    .tab-panel {
+      display: none;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* SHARED APP SHELL */
+    .app {
+      width: 360px;
+      max-width: 100%;
+      height: 640px;
+      background: linear-gradient(#0f172a, #020617);
+      border-radius: 32px;
+      padding: 20px;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0,0,0,.7);
+      color: #f9fafb;
+    }
+
+    .header {
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      margin: 0;
+    }
+    .header p {
+      font-size: 0.75rem;
+      margin: 4px 0 0;
+    }
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  margin: 16px auto;
+}
+
+/* BOTH image + video share same rules */
+.video-wrapper video,
+.video-wrapper .video-cover {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 260px;
+  height: 190px;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+/* Video specific */
+.video-wrapper video {
+  display: none;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+/* Cover specific */
+.video-wrapper .video-cover {
+  z-index: 3;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+
+
+
+button {
+  type: button;
+}
+
+  
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 999px;
+      border: none;
+      background: #1e293b;
+      color: #fff;
+      font-size: 0.85rem;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .btn:hover {
+      background: #334155;
+    }
+
+    .btn.active {
+      box-shadow: 0 0 16px rgba(201,164,92,.9);
+      transform: scale(1.04);
+    }
+
+    .btn.primary {
+      background: #c9a45c;
+      color: #111827;
+      font-weight: 600;
+    }
+
+  .popup {
+  position: absolute;
+  inset: 0;
+  background: transparent; /* no dark overlay */
+  display: none;
+  z-index: 10;
+  pointer-events: none;
+}
+
+
+    .popup-box {
+      width: 85%;
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 20px;
+    }
+
+    .popup-box input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      margin-bottom: 10px;
+    }
+
+    /* ===========================
+       PER-DEMO COLOUR THEMES
+       =========================== */
+
+    /* RETAIL */
+    .retail-app {
+      background: linear-gradient(#0f172a, #020617);
+    }
+    .retail-app .header h1 {
+      color: #c9a45c;
+    }
+    .retail-app .header p {
+      color: #9ca3af;
+    }
+    .retail-app .video-cover {
+      background: radial-gradient(circle at top, #334155, #020617);
+    }
+
+    /* HOTEL */
+    .hotel-app {
+      background: linear-gradient(#020617, #111827);
+    }
+    .hotel-app .header h1 {
+      color: #c9a45c;
+    }
+    .hotel-app .header p {
+      color: #9ca3af;
+    }
+    .hotel-app .video-cover {
+      background: radial-gradient(circle at top, #1d4ed8, #020617);
+    }
+
+    /* REAL ESTATE */
+    .realestate-app {
+      background: linear-gradient(#020617, #0b1120);
+    }
+    .realestate-app .header h1 {
+      color: #c9a45c;
+    }
+    .realestate-app .header p {
+      color: #9ca3af;
+    }
+    .realestate-app .video-cover {
+      background: radial-gradient(circle at top, #16a34a, #020617);
+    }
+
+    /* BEAUTY */
+    .beauty-app {
+      background: linear-gradient(180deg, #7a003c, #2a001f);
+      color: #fff0f6;
+      box-shadow: 0 20px 50px rgba(255, 0, 128, 0.35);
+    }
+    .beauty-app .header h1 {
+      color: hotpink;
+    }
+    .beauty-app .header p {
+      color: #f9a8d4;
+    }
+    .beauty-app .video-cover {
+      background: radial-gradient(circle at top, #ff4da6, #2a001f);
+    }
+    .beauty-app .btn {
+      background: hotpink;
+      color: #2a001f;
+      font-weight: 600;
+    }
+    .beauty-app .btn:hover {
+      background: #ff69b4;
+      box-shadow: 0 0 18px rgba(255,105,180,.6);
+    }
+    .beauty-app .btn.active {
+      background: #ffd1e8;
+      color: #2a001f;
+      box-shadow: 0 0 22px rgba(255,20,147,.9);
+      transform: scale(1.05);
+    }
+    .beauty-app .btn.primary {
+      background: hotpink;
+      color: #2a001f;
+      font-weight: 700;
+    }
+    .beauty-app .popup {
+      background: rgba(42, 0, 31, 0.85);
+    }
+    .beauty-app .popup-box {
+      background: linear-gradient(180deg, #7a003c, #2a001f);
+      box-shadow: 0 0 30px rgba(255,20,147,.4);
+    }
+    .beauty-app .popup-box input {
+      background: #ffd1e8;
+      color: #2a001f;
+      font-weight: 500;
+    }
+/* SMALL BEAUTY SERVICES CARD */
+.services-card {
+  position: absolute;
+  bottom: 80px;          /* sits just under buttons */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  padding: 14px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ff4da6, #7a003c);
+  box-shadow: 0 10px 30px rgba(255,20,147,.45);
+  animation: popUp .25s ease-out;
+  pointer-events: auto;
+  z-index: 20;
+}
+
+
+.services-card h3 {
+  margin: 0 0 12px;
+  text-align: center;
+  color: #fff0f6;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.price-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+}
+
+.price-list li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  padding: 6px 0;
+  color: #fff0f6;
+  border-bottom: 1px solid rgba(255,255,255,.25);
+}
+
+.price-list li:last-child {
+  border-bottom: none;
+}
+
+.services-card .btn {
+  margin-top: 8px;
+  background: #ffd1e8;
+  color: #2a001f;
+  font-weight: 700;
+}
+
+/* Subtle pop animation */
+@keyframes popIn {
+  from {
+    transform: scale(.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+/* ===========================
+   REAL ESTATE – SMALL POPUPS
+   =========================== */
+#realEstateListPopup .popup-box,
+#realEstateEnquirePopup .popup-box {
+  width: 260px;
+  max-width: 260px;
+  padding: 16px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #16a34a, #020617);
+  box-shadow: 0 10px 30px rgba(34,197,94,.45);
+}
+
+/* Inputs match other demos */
+#realEstateListPopup input,
+#realEstateEnquirePopup input {
+  background: #dcfce7;
+  color: #022c22;
+  font-weight: 500;
+}
+
+/* Button styling */
+#realEstateListPopup .btn.primary,
+#realEstateEnquirePopup .btn.primary {
+  background: #22c55e;
+  color: #022c22;
+  font-weight: 700;
+}
+
   </style>
 </head>
 <body>
-  <header>
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-indigo-600">🏨 Cavatar Hotel</h1>
-      <nav class="hidden md:flex gap-6 text-sm text-gray-600">
-        <a href="#rooms" class="hover:text-indigo-500">Rooms</a>
-        <a href="#amenities" class="hover:text-indigo-500">Amenities</a>
-        <a href="#dining" class="hover:text-indigo-500">Dining</a>
-        <a href="#spa" class="hover:text-indigo-500">Spa</a>
-        <a href="#contact" class="hover:text-indigo-500">Contact</a>
-      </nav>
+  <div class="page">
+
+    <!-- TABS -->
+    <div class="tab-bar">
+      <button class="tab active" data-target="retail">Retail</button>
+      <button class="tab" data-target="hotel">Hotel</button>
+      <button class="tab" data-target="realestate">Real Estate</button>
+      <button class="tab" data-target="beauty">Beauty</button>
     </div>
-  </header>
 
-  <main>
-    <section id="hero" class="text-center py-16 bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
-      <h2 class="text-4xl md:text-5xl font-extrabold mb-4">Welcome to Cavatar Hotel</h2>
-      <p class="text-lg mb-6">Experience futuristic hospitality with our AI-powered concierge assistant.</p>
-      <a href="#rooms" class="bg-white text-indigo-600 font-semibold px-6 py-3 rounded-lg shadow hover:bg-indigo-100 transition">Explore Rooms</a>
-    </section>
-
-    <section id="rooms" class="py-12">
-      <h3 class="text-3xl font-bold text-center mb-10">Our Signature Rooms</h3>
-      <div class="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-        <div class="rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-2xl transition">
-          <img src="images/deluxe.jpg" class="w-full h-64 object-cover" alt="Deluxe Ocean Suite">
-          <div class="p-6">
-            <h4 class="text-2xl font-semibold text-indigo-600 mb-2">Deluxe Ocean Suite</h4>
-            <p class="text-gray-600 mb-4">Ocean views, smart automation, and marble ensuite luxury.</p>
-            <button class="bg-indigo-600 text-white px-4 py-2 rounded-md" onclick="openBooking('Deluxe Ocean Suite')">Book Now</button>
-          </div>
+    <!-- ===========================
+         RETAIL PANEL
+         =========================== -->
+    <div id="retail" class="tab-panel active">
+      <div class="app retail-app">
+        <div class="header">
+          <h1>CAVATAR RETAIL</h1>
+          <p>Smart Shopping Assistant</p>
         </div>
-        <div class="rounded-2xl overflow-hidden shadow-lg bg-white hover:shadow-2xl transition">
-          <img src="images/standard.jpg" class="w-full h-64 object-cover" alt="Executive City Suite">
-          <div class="p-6">
-            <h4 class="text-2xl font-semibold text-indigo-600 mb-2">Executive City Suite</h4>
-            <p class="text-gray-600 mb-4">Skyline views and business-ready workspace for professionals.</p>
-            <button class="bg-indigo-600 text-white px-4 py-2 rounded-md" onclick="openBooking('Executive City Suite')">Book Now</button>
+
+        <div class="video-wrapper">
+          <img
+            id="retailCover"
+            class="video-cover"
+            src="retail.png"
+            alt="Retail Cavatar"
+          >
+          <video id="retailVideo" playsinline controls></video>
+        </div>
+
+        <button id="retailBtn1" class="btn">Trading Hours</button>
+        <button id="retailBtn2" class="btn">Delivery &amp; Returns</button>
+        <button id="retailBtnBooking" class="btn primary">Track Order</button>
+
+        <div class="popup" id="retailPopup">
+          <div class="popup-box">
+            <h3>Track Order</h3>
+            <input placeholder="Order Number">
+            <input placeholder="Email Address">
+            <button id="retailConfirmBooking" class="btn primary">Track</button>
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section id="contact" class="py-12 text-center">
-      <h3 class="text-2xl font-bold mb-4">Contact</h3>
-      <p class="text-gray-600">This prototype demonstrates AI-guided hospitality experiences with a virtual concierge.</p>
-      <p class="mt-4 text-indigo-600 font-semibold">© 2025 Cavatar Hotel. All rights reserved.</p>
-    </section>
-  </main>
+    <!-- ===========================
+         HOTEL PANEL
+         =========================== -->
+    <div id="hotel" class="tab-panel">
+      <div class="app hotel-app">
+        <div class="header">
+          <h1>CAVATAR HOTEL</h1>
+          <p>Virtual Concierge Service</p>
+        </div>
 
-  <div id="cavatar-root"><iframe id="cavatar-iframe" allow="microphone" referrerpolicy="no-referrer" title="Cavatar Concierge"></iframe></div>
-  <div id="avatar-ui">
-    <p class="text-sm text-gray-700 mb-2">How can I help you?</p>
-    <button id="btn-book">Make a Booking</button>
-    <button id="btn-check">Check Booking</button>
+        <div class="video-wrapper">
+          <img
+            id="hotelCover"
+            class="video-cover"
+            src="1.png"
+            alt="Hotel Cavatar"
+          >
+          <video id="hotelVideo" playsinline controls></video>
+        </div>
+
+        <button id="hotelBtn1" class="btn">Check-in Information</button>
+        <button id="hotelBtn2" class="btn">Hotel Facilities</button>
+        <button id="hotelBtnBooking" class="btn primary">Manage My Booking</button>
+
+        <div id="hotelPopup" class="popup">
+          <div class="popup-box">
+            <h3>Check your booking</h3>
+            <input value="Sarah May">
+            <input type="date" value="2026-01-01">
+            <button id="hotelConfirmBooking" class="btn primary">Check Booking</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===========================
+         REAL ESTATE PANEL
+         =========================== -->
+    <div id="realestate" class="tab-panel">
+      <div class="app realestate-app">
+        <div class="header">
+          <h1>CAVATAR REAL ESTATE</h1>
+          <p>Virtual Property Assistant</p>
+        </div>
+
+        <div class="video-wrapper">
+          <img
+            id="realEstateCover"
+            class="video-cover"
+            src="realestate.png"
+            alt="Real Estate Cavatar"
+          >
+          <video id="realEstateVideo" playsinline controls></video>
+        </div>
+
+        <button id="realEstateBtn1" class="btn">List my Property for Sale</button>
+    
+        <button id="realEstateBtnBooking" class="btn primary">Enquire about Rental Property</button>
+
+        <div class="popup" id="realEstatePopup">
+          <div class="popup-box">
+            <h3>Property Enquiry</h3>
+            <input placeholder="Full Name">
+            <input placeholder="Property Address">
+            <button id="realEstateConfirmBooking" class="btn primary">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===========================
+         BEAUTY PANEL
+         =========================== -->
+    <div id="beauty" class="tab-panel">
+      <div class="app beauty-app">
+        <div class="header">
+          <h1>CAVATAR BEAUTY</h1>
+          <p>Virtual Salon Assistant</p>
+        </div>
+
+        <div class="video-wrapper">
+          <img
+            id="beautyCover"
+            class="video-cover"
+            src="beauty.png"
+            alt="Beauty Cavatar"
+          >
+          <video id="beautyVideo" playsinline controls></video>
+        </div>
+
+        <button id="beautyBtn1" class="btn">Book Appointment</button>
+        <button id="beautyBtn2" class="btn">Services &amp; Pricing</button>
+        <button id="beautyBtnBooking" class="btn primary">My Booking</button>
+
+      <div class="popup" id="beautyPopup">
+  <div class="popup-box services-card">
+    <h3>My Booking</h3>
+
+    <input placeholder="Client Name">
+    <input type="date">
+
+    <button id="beautyConfirmBooking" class="btn primary">View</button>
+    <button id="beautyCloseBooking" class="btn">Close</button>
   </div>
+</div>
 
-  <div id="booking-modal">
-    <h3 class="font-bold text-gray-800 mb-2">Book a Room</h3>
-    <input id="guestName" type="text" placeholder="Full Name" />
-    <input id="guestEmail" type="email" placeholder="Email" />
-    <select id="roomType">
-      <option>Deluxe Ocean Suite</option>
-      <option>Executive City Suite</option>
+
+      </div>
+    </div>
+<!-- SERVICES & PRICING POPUP (SMALL CARD) -->
+<div class="popup" id="beautyServicesPopup">
+  <div class="popup-box services-card">
+    <h3>Services & Pricing</h3>
+
+    <ul class="price-list">
+      <li><span>Classic Lash Set</span><span>$89</span></li>
+      <li><span>Hybrid Lash Set</span><span>$109</span></li>
+      <li><span>Volume Lash Set</span><span>$129</span></li>
+      <li><span>Infills</span><span>from $59</span></li>
+      <li><span>Brow Wax & Tint</span><span>$45</span></li>
+    </ul>
+
+    <button id="beautyCloseServices" class="btn primary">
+      Close
+    </button>
+  </div>
+</div>
+<!-- BOOKING CONFIRMATION POPUP -->
+<div class="popup" id="beautyConfirmPopup">
+  <div class="popup-box services-card">
+    <h3>Booking Confirmed</h3>
+
+    <ul class="price-list">
+      <li><span>Client</span><span>Sarah May</span></li>
+      <li><span>Service</span><span>Hybrid Lash Set</span></li>
+      <li><span>Date</span><span>12 Jan 2026</span></li>
+      <li><span>Time</span><span>2:30 PM</span></li>
+      <li><span>Technician</span><span>Emily</span></li>
+    </ul>
+
+    <button id="beautyCloseConfirm" class="btn primary">
+      Done
+    </button>
+  </div>
+</div>
+
+<!-- BOOK APPOINTMENT POPUP -->
+<div class="popup" id="beautyBookingPopup">
+  <div class="popup-box services-card">
+    <h3>Book Appointment</h3>
+
+    <input id="bookingName" placeholder="Client Name">
+    <input id="bookingDate" type="date">
+
+    <select id="bookingService" style="
+      width:100%;
+      padding:10px;
+      border-radius:10px;
+      border:none;
+      margin-bottom:10px;
+      background:#ffd1e8;
+      color:#2a001f;
+      font-weight:500;
+    ">
+      <option value="">Select Service</option>
+      <option>Classic Lash Set</option>
+      <option>Hybrid Lash Set</option>
+      <option>Volume Lash Set</option>
+      <option>Infills</option>
     </select>
-    <input id="checkIn" type="date" />
-    <input id="checkOut" type="date" />
-    <button id="submitBooking">Confirm Booking</button>
+
+    <button id="beautyContinueBooking" class="btn primary">
+      Continue
+    </button>
+
+    <button id="beautyCloseBooking" class="btn">
+      Close
+    </button>
+  </div>
+</div>
+<!-- CONFIRM DETAILS POPUP -->
+<div class="popup" id="beautyReviewPopup">
+  <div class="popup-box services-card">
+    <h3>Confirm Details</h3>
+
+    <ul class="price-list">
+      <li><span>Name</span><span id="reviewName"></span></li>
+      <li><span>Date</span><span id="reviewDate"></span></li>
+      <li><span>Service</span><span id="reviewService"></span></li>
+    </ul>
+
+    <button id="beautySubmitBooking" class="btn primary">
+      Submit
+    </button>
+
+    <button id="beautyEditBooking" class="btn">
+      Edit
+    </button>
+  </div>
+</div>
+<!-- FINAL CONFIRMATION -->
+<div class="popup" id="beautyFinalPopup">
+  <div class="popup-box services-card">
+    <h3>Booking Confirmed</h3>
+
+    <ul class="price-list">
+      <li><span>Client</span><span id="finalName"></span></li>
+      <li><span>Date</span><span id="finalDate"></span></li>
+      <li><span>Service</span><span id="finalService"></span></li>
+    </ul>
+
+    <button id="beautyDone" class="btn primary">
+      Done
+    </button>
+  </div>
+</div>
+
   </div>
 
-  <div id="check-modal">
-    <h3 class="font-bold text-gray-800 mb-2">Check Booking</h3>
-    <input id="checkEmail" type="email" placeholder="Enter your email" />
-    <button id="submitCheck">Find Booking</button>
-  </div>
+<script>
+/* ===========================
+   SAFE QUERY HELPERS
+   =========================== */
+const $ = id => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
 
-  <script>
-    const iframe = document.getElementById('cavatar-iframe');
-    const root = document.getElementById('cavatar-root');
-    const modal = document.getElementById('booking-modal');
-    const checkModal = document.getElementById('check-modal');
-    const avatarUI = document.getElementById('avatar-ui');
+/* ===========================
+   TAB SWITCHING
+   =========================== */
+const tabs = $$(".tab");
+const panels = $$(".tab-panel");
 
-    let bookings = [
-      { id: 1, name: 'John Smith', room: 'Deluxe Ocean Suite', checkIn: '2025-10-18', checkOut: '2025-10-22', email: 'john@example.com' },
-      { id: 2, name: 'Jane Doe', room: 'Executive City Suite', checkIn: '2025-11-01', checkOut: '2025-11-05', email: 'jane@example.com' }
-    ];
+function hideAllPopups() {
+  $$(".popup").forEach(p => {
+    p.style.display = "none";
+    p.style.pointerEvents = "none";
+  });
+}
 
-    iframe.src = "https://labs.heygen.com/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiIwOWQxNDJjZWMyY2Q0ZjkzYjZlMTBiYmI3NTdlMzM2OCIsInByZXZpZXdJbWciOiJodHRwczovL2ZpbGVzMi5oZXlnZW4uYWkvYXZhdGFyL3YzLzA5ZDE0MmNlYzJjZDRmOTNiNmUxMGJiYjc1N2UzMzY4L2Z1bGwvMi4yL3ByZXZpZXdfdGFyZ2V0LndlYnAiLCJuZWVkUmVtb3ZlQmFja2dyb3VuZCI6ZmFsc2UsImtub3dsZWRuZUJhc2VJZCI6IjQ5OWM2NDcyMjBiZTRmZDI5OWY4YWQ3N2ZiMGM0YTVmIiwidXNlcm5hbWUiOiI4NjM0NTdjMTNlYjM0YjVlOTVjOGZmMmJhN2Q1MzEwMSJ9&inIFrame=1";
+function stopAllVideos() {
+  $$("video").forEach(v => {
+    try { v.pause(); } catch {}
+    v.currentTime = 0;
+    v.style.display = "none";
+  });
+  $$(".video-cover").forEach(c => {
+    c.style.opacity = "1";
+    c.style.pointerEvents = "auto";
+  });
+  hideAllPopups();
+}
 
-    iframe.addEventListener('load', () => root.classList.add('show'));
+tabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    if (tab.classList.contains("active")) return;
 
-    document.body.addEventListener('click', () => {
-      iframe.contentWindow.postMessage({
-        type: 'streaming-embed',
-        action: 'speak',
-        payload: { text: 'Welcome to Cavatar Hotel! Would you like to make or check a booking?' }
-      }, '*');
-      avatarUI.style.display = 'block';
-    }, { once: true });
+    tabs.forEach(t => t.classList.remove("active"));
+    panels.forEach(p => p.classList.remove("active"));
 
-    document.getElementById('btn-book').onclick = () => {
-      iframe.contentWindow.postMessage({ type: 'streaming-embed', action: 'speak', payload: { text: 'Great! Let\'s make a new booking.' } }, '*');
-      modal.style.display = 'block';
+    tab.classList.add("active");
+    const target = tab.dataset.target;
+    const panel = $(target);
+    if (panel) panel.classList.add("active");
+
+    stopAllVideos();
+  });
+});
+
+/* ===========================
+   POPUP CONTROL (FIXED)
+   =========================== */
+function showPopup(p) {
+  if (!p) return;
+  hideAllPopups();
+  p.style.display = "flex";
+  p.style.pointerEvents = "auto";
+  p.style.justifyContent = "center";
+  p.style.alignItems = "center";
+}
+
+function hidePopup(p) {
+  if (!p) return;
+  p.style.display = "none";
+  p.style.pointerEvents = "none";
+}
+
+$$(".popup").forEach(p => {
+  p.addEventListener("click", e => {
+    if (e.target === p) hidePopup(p);
+  });
+  const box = p.querySelector(".popup-box");
+  if (box) box.addEventListener("click", e => e.stopPropagation());
+});
+
+/* ===========================
+   VIDEO HELPER (SAFE)
+   =========================== */
+function playVideo(video, cover, src) {
+  if (!video || !cover) return;
+
+  cover.style.opacity = "0";
+  cover.style.pointerEvents = "none";
+
+  video.style.display = "block";
+  video.src = src;
+  video.load();
+  video.play().catch(() => {});
+
+  video.onended = () => {
+    cover.style.opacity = "1";
+    cover.style.pointerEvents = "auto";
+  };
+}
+
+/* ===========================
+   RETAIL
+   =========================== */
+(function () {
+  const video = $("retailVideo");
+  const cover = $("retailCover");
+  const popup = $("retailPopup");
+
+  $("retailBtn1")?.addEventListener("click", () =>
+    playVideo(video, cover, "videos/hours.mp4")
+  );
+
+  $("retailBtn2")?.addEventListener("click", () =>
+    playVideo(video, cover, "videos/shipping.mp4")
+  );
+
+  $("retailBtnBooking")?.addEventListener("click", () => {
+    playVideo(video, cover, "videos/order.mp4");
+    showPopup(popup);
+  });
+
+  $("retailConfirmBooking")?.addEventListener("click", () => {
+    hidePopup(popup);
+    playVideo(video, cover, "videos/status.mp4");
+  });
+})();
+
+/* ===========================
+   HOTEL
+   =========================== */
+(function () {
+  const video = $("hotelVideo");
+  const cover = $("hotelCover");
+  const popup = $("hotelPopup");
+
+  $("hotelBtn1")?.addEventListener("click", () =>
+    playVideo(video, cover, "videos/1.mp4")
+  );
+
+  $("hotelBtn2")?.addEventListener("click", () =>
+    playVideo(video, cover, "videos/5.mp4")
+  );
+
+  $("hotelBtnBooking")?.addEventListener("click", () => {
+    playVideo(video, cover, "videos/8.mp4");
+    showPopup(popup);
+  });
+
+  $("hotelConfirmBooking")?.addEventListener("click", () => {
+    hidePopup(popup);
+    playVideo(video, cover, "videos/9.mp4");
+  });
+})();
+
+/* ===========================
+   BEAUTY (FULLY FIXED)
+   =========================== */
+(function () {
+  const video = $("beautyVideo");
+  const cover = $("beautyCover");
+
+  const bookingPopup = $("beautyBookingPopup");
+  const reviewPopup = $("beautyReviewPopup");
+  const finalPopup = $("beautyFinalPopup");
+  const servicesPopup = $("beautyServicesPopup");
+  const myBookingPopup = $("beautyPopup");
+
+  $("beautyBtn1")?.addEventListener("click", () => {
+    playVideo(video, cover, "videos/booking.mp4");
+    showPopup(bookingPopup);
+  });
+
+  $("beautyBtn2")?.addEventListener("click", () =>
+    showPopup(servicesPopup)
+  );
+
+  $("beautyBtnBooking")?.addEventListener("click", () => {
+    playVideo(video, cover, "videos/booking.mp4");
+    showPopup(myBookingPopup);
+  });
+
+  /* 🔥 VIEW BUTTON FIX */
+  $$(`#beautyPopup #beautyConfirmBooking`).forEach(btn => {
+    btn.addEventListener("click", () => {
+      hidePopup(myBookingPopup);
+      playVideo(video, cover, "videos/confirm2.mp4");
+    });
+  });
+
+  $("beautyContinueBooking")?.addEventListener("click", () => {
+    hidePopup(bookingPopup);
+    playVideo(video, cover, "videos/confirm2.mp4");
+    showPopup(reviewPopup);
+  });
+
+  $("beautyEditBooking")?.addEventListener("click", () => {
+    hidePopup(reviewPopup);
+    showPopup(bookingPopup);
+  });
+
+  $("beautySubmitBooking")?.addEventListener("click", () => {
+    hidePopup(reviewPopup);
+    playVideo(video, cover, "videos/final.mp4");
+    showPopup(finalPopup);
+  });
+
+  $("beautyDone")?.addEventListener("click", () =>
+    hidePopup(finalPopup)
+  );
+})();
+
+
+/* ===========================
+   REAL ESTATE FIX (POPUPS UNDER BUTTONS)
+   =========================== */
+(function () {
+  const video = document.getElementById("realEstateVideo");
+  const cover = document.getElementById("realEstateCover");
+
+  const btnList = document.getElementById("realEstateBtn1");
+  const btnHours = document.getElementById("realEstateBtn2");
+  const btnEnquire = document.getElementById("realEstateBtnBooking");
+
+  const realestatePanel = document.getElementById("realestate");
+  const appHost = realestatePanel?.querySelector(".app"); // ✅ mount popups inside app
+
+  if (!video || !cover || !appHost) return;
+
+  function play(src) {
+    cover.style.opacity = "0";
+    cover.style.pointerEvents = "none";
+    video.style.display = "block";
+    video.src = src;
+    video.load();
+    video.play().catch(() => {});
+    video.onended = () => {
+      cover.style.opacity = "1";
+      cover.style.pointerEvents = "auto";
+    };
+  }
+
+  // Ensure appHost is positioning context for absolute popups
+  appHost.style.position = "relative";
+
+  function showPopup(popup) {
+  if (!popup) return;
+  popup.style.display = "flex";   // ✅ matches other popups
+  popup.style.pointerEvents = "auto";
+}
+
+
+  function hidePopup(popup) {
+    if (!popup) return;
+    popup.style.display = "none";
+    popup.style.pointerEvents = "none";
+  }
+
+  function createPopup(id, title, fields, submitVideo) {
+    let popup = document.getElementById(id);
+    if (popup) return popup;
+
+    popup = document.createElement("div");
+    popup.className = "popup";
+    popup.id = id;
+
+    const box = document.createElement("div");
+    // ✅ makes it sit under buttons like Beauty
+    box.className = "popup-box services-card";
+
+    box.innerHTML = `<h3>${title}</h3>`;
+
+    fields.forEach(ph => {
+      const input = document.createElement("input");
+      input.placeholder = ph;
+      box.appendChild(input);
+    });
+
+    const submit = document.createElement("button");
+    submit.className = "btn primary";
+    submit.textContent = "Submit";
+
+    submit.onclick = () => {
+      hidePopup(popup);
+      play(submitVideo);
     };
 
-    document.getElementById('btn-check').onclick = () => {
-      iframe.contentWindow.postMessage({ type: 'streaming-embed', action: 'speak', payload: { text: 'Sure! Please enter the email used for your booking.' } }, '*');
-      checkModal.style.display = 'block';
-    };
+    const close = document.createElement("button");
+    close.className = "btn";
+    close.textContent = "Close";
+    close.onclick = () => hidePopup(popup);
 
-    document.getElementById('submitBooking').onclick = () => {
-      const name = document.getElementById('guestName').value.trim();
-      const email = document.getElementById('guestEmail').value.trim();
-      const room = document.getElementById('roomType').value;
-      const checkIn = document.getElementById('checkIn').value;
-      const checkOut = document.getElementById('checkOut').value;
-      if(!name || !email || !checkIn || !checkOut){ alert('Please fill in all booking fields'); return; }
-      const newBooking = { id: bookings.length+1, name, email, room, checkIn, checkOut };
-      bookings.push(newBooking);
-      localStorage.setItem('bookings', JSON.stringify(bookings));
-      modal.style.display = 'none';
-      iframe.contentWindow.postMessage({ type: 'streaming-embed', action: 'speak', payload: { text: `Thank you ${name}, your booking for the ${room} is confirmed!` } }, '*');
-    };
+    box.appendChild(submit);
+    box.appendChild(close);
+    popup.appendChild(box);
 
-    document.getElementById('submitCheck').onclick = () => {
-      const email = document.getElementById('checkEmail').value.trim();
-      const allBookings = JSON.parse(localStorage.getItem('bookings')) || bookings;
-      const found = allBookings.find(b => b.email.toLowerCase() === email.toLowerCase());
-      checkModal.style.display = 'none';
-      if(found){
-        iframe.contentWindow.postMessage({ type: 'streaming-embed', action: 'speak', payload: { text: `I found your booking, ${found.name}. You have a ${found.room} from ${found.checkIn} to ${found.checkOut}.` } }, '*');
-      } else {
-        iframe.contentWindow.postMessage({ type: 'streaming-embed', action: 'speak', payload: { text: 'I could not find any booking with that email.' } }, '*');
-      }
-    };
+    // Clicking outside closes
+    popup.onclick = e => { if (e.target === popup) hidePopup(popup); };
+    box.onclick = e => e.stopPropagation();
 
-    function openBooking(room){
-      document.getElementById('roomType').value = room;
-      modal.style.display='block';
-    }
-  </script>
+    // ✅ mount inside the real estate app so it appears in the right place
+    appHost.appendChild(popup);
+
+    return popup;
+  }
+
+  const listPopup = createPopup(
+    "realEstateListPopup",
+    "List My Property",
+    ["Full Name", "Phone Number"],
+    "videos/thankyou.mp4"
+  );
+
+  const enquirePopup = createPopup(
+    "realEstateEnquirePopup",
+    "Rental Enquiry",
+    ["Full Name", "Phone Number", "Property Address"],
+    "videos/thankyou.mp4"
+  );
+
+  btnList?.addEventListener("click", () => {
+    hidePopup(enquirePopup);
+    play("videos/list.mp4");
+    showPopup(listPopup);
+  });
+
+
+  btnEnquire?.addEventListener("click", () => {
+    hidePopup(listPopup);
+    play("videos/enquire.mp4");
+    showPopup(enquirePopup);
+  });
+})();
+
+
+</script>
+
+
 </body>
 </html>
